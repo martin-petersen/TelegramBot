@@ -1,5 +1,8 @@
 package com.example.demo;
 
+import com.example.demo.model.Item;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ChatAction;
@@ -17,12 +20,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
 public class TelegramManageBotApplication {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         SpringApplication.run(TelegramManageBotApplication.class, args);
 
         //Criação do objeto bot com as informações de acesso
@@ -59,9 +63,6 @@ public class TelegramManageBotApplication {
                 baseResponse = bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
                 //verificação de ação de chat foi enviada com sucesso
                 if (update.message().text().equals("/list")) {
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o id do item: "));
-//                    Item item = new Item();
-//                    item.setId(Integer.getInteger(update.message().text()));
                     URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items");
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setRequestMethod("GET");
@@ -73,11 +74,51 @@ public class TelegramManageBotApplication {
                     }
                     in.close();
                     con.disconnect();
-                    System.out.println(content.toString());
+                    ObjectMapper obj = new ObjectMapper();
+                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
+                    for (Item i:
+                         itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
                 }
-                //envio da mensagem de resposta
-                sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não entendi..."));
+                else if(update.message().text().equals("/findbyid")) {
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o ID"));
+                    bot.wait(10);
+                    String aux = update.message().replyToMessage().text();
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + aux);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
 
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer content = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+                    con.disconnect();
+                    ObjectMapper obj = new ObjectMapper();
+                    Item item = obj.readValue(content.toString(),Item.class);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
+                }
+                else if(update.message().text().equals("/findbyname")) {
+
+                }
+                else if(update.message().text().equals("/findbycategory")) {
+
+                }
+                else if(update.message().text().equals("/findbylocation")) {
+
+                }
+                else if(update.message().text().equals("/findbydescription")) {
+
+                }
+                else if(update.message().text().equals("/location")) {
+
+                }
+                else if(update.message().text().equals("/category")) {
+
+                }
             }
         }
     }
