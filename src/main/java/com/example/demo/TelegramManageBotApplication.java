@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
@@ -64,6 +63,9 @@ public class TelegramManageBotApplication {
                 //envio de "Escrevendo" antes de enviar a resposta
                 baseResponse = bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
                 //verificação de ação de chat foi enviada com sucesso
+                //TODO organizar o código para ficar mais bonito
+
+                //Método para listar tudo
                 if (update.message().text().equals("/list")) {
                     URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items");
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -83,9 +85,13 @@ public class TelegramManageBotApplication {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
                     }
                 }
+                //######################################################################################################
+
+                //Método para buscar por ID
                 if(update.message().text().equals("/findbyid")) {
                     command = update.message().text();
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o ID"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o ID:"));
+                    mensagem = command;
                 }
                 if(command.equals("/findbyid")&&!command.equals(mensagem)) {
                     URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + update.message().text());
@@ -101,27 +107,169 @@ public class TelegramManageBotApplication {
                     in.close();
                     con.disconnect();
                     ObjectMapper obj = new ObjectMapper();
-                    Item item = obj.readValue(content.toString(),Item.class);
+                    Item item = obj.readValue(content.toString(), Item.class);
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
                     command = "";
                 }
-                else if(update.message().text().equals("/findbyname")) {
+                //######################################################################################################
 
+                //Método para buscar pelo nome do item
+                if(update.message().text().equals("/findbyname")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o nome do item:"));
+                    mensagem = command;
                 }
-                else if(update.message().text().equals("/findbycategory")) {
+                if(command.equals("/findbyname")&&!command.equals(mensagem)) {
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byItem/" + update.message().text());
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
 
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer content = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+                    con.disconnect();
+                    ObjectMapper obj = new ObjectMapper();
+                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
                 }
-                else if(update.message().text().equals("/findbylocation")) {
+                //######################################################################################################
 
+                //Método para buscar pela categoria do item
+                if(update.message().text().equals("/findbycategory")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite a categoria:"));
+                    mensagem = command;
                 }
-                else if(update.message().text().equals("/findbydescription")) {
+                if(command.equals("/findbycategory")&&!command.equals(mensagem)) {
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byCategory/" + update.message().text());
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
 
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer content = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+                    con.disconnect();
+                    ObjectMapper obj = new ObjectMapper();
+                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
                 }
-                else if(update.message().text().equals("/location")) {
+                //######################################################################################################
 
+                //Método para buscar pela localização
+                if(update.message().text().equals("/findbylocation")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite a localização:"));
+                    mensagem = command;
                 }
-                else if(update.message().text().equals("/category")) {
+                if(command.equals("/findbylocation")&&!command.equals(mensagem)) {
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byLocation/" + update.message().text());
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
 
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer content = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+                    con.disconnect();
+                    ObjectMapper obj = new ObjectMapper();
+                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
+                }
+                //######################################################################################################
+
+                //Método para busca pela descrição do item
+                if(update.message().text().equals("/findbydescription")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite a descrição:"));
+                    mensagem = command;
+                }
+                if(command.equals("/findbydescription")&&!command.equals(mensagem)) {
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byDescription/" + update.message().text());
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
+
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer content = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+                    con.disconnect();
+                    ObjectMapper obj = new ObjectMapper();
+                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
+                }
+                //######################################################################################################
+
+                //Método para listar as localizações cadastradas
+                if(update.message().text().equals("/locations")) {
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/locations");
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer content = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+                    con.disconnect();
+                    ObjectMapper obj = new ObjectMapper();
+                    List<String> locations = obj.readValue(content.toString(), new TypeReference<List<String>>() {});
+                    for (String i:
+                            locations) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i));
+                    }
+                }
+                //######################################################################################################
+
+                //Método para listar as categorias cadastradas
+                if(update.message().text().equals("/category")) {
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/categories");
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuffer content = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+                    con.disconnect();
+                    ObjectMapper obj = new ObjectMapper();
+                    List<String> categories = obj.readValue(content.toString(), new TypeReference<List<String>>() {});
+                    for (String i:
+                            categories) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i));
+                    }
                 }
             }
         }

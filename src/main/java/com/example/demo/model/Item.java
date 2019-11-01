@@ -56,10 +56,10 @@ public class Item {
     @Override
     public String toString() {
         return "ID: " + id + "\n" +
-                "Local: '" + location + "\n" +
-                "Categoria: '" + category + "\n" +
-                "Item: '" + item + "\n" +
-                "Descrição: '" + description + "\n" +
+                "Local: " + location + "\n" +
+                "Categoria: " + category + "\n" +
+                "Item: " + item + "\n" +
+                "Descrição: " + description + "\n" +
                 "\n\n";
     }
 }
