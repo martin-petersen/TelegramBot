@@ -43,6 +43,8 @@ public class TelegramManageBotApplication {
 
         String command = "";
         String mensagem = "";
+        boolean csv = false;
+        List<Item> FileStorage;
 
         //loop infinito pode ser alterado por algum timer de intervalo curto
         while (true) {
@@ -80,10 +82,16 @@ public class TelegramManageBotApplication {
                     con.disconnect();
                     ObjectMapper obj = new ObjectMapper();
                     List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    for (Item i:
-                         itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(!csv) {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
+                    } else {
+                        FileStorage = itens;
+                        //Método para gerar e enviar o CSV
                     }
+                    command = "";
                 }
                 //######################################################################################################
 
@@ -134,9 +142,14 @@ public class TelegramManageBotApplication {
                     con.disconnect();
                     ObjectMapper obj = new ObjectMapper();
                     List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(!csv) {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
+                    } else {
+                        FileStorage = itens;
+                        //Método para gerar e enviar o CSV
                     }
                     command = "";
                 }
@@ -163,9 +176,14 @@ public class TelegramManageBotApplication {
                     con.disconnect();
                     ObjectMapper obj = new ObjectMapper();
                     List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(!csv) {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
+                    } else {
+                        FileStorage = itens;
+                        //Método para gerar e enviar o CSV
                     }
                     command = "";
                 }
@@ -192,9 +210,14 @@ public class TelegramManageBotApplication {
                     con.disconnect();
                     ObjectMapper obj = new ObjectMapper();
                     List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(!csv) {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
+                    } else {
+                        FileStorage = itens;
+                        //Método para gerar e enviar o CSV
                     }
                     command = "";
                 }
@@ -221,9 +244,14 @@ public class TelegramManageBotApplication {
                     con.disconnect();
                     ObjectMapper obj = new ObjectMapper();
                     List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(!csv) {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
+                    } else {
+                        FileStorage = itens;
+                        //Método para gerar e enviar o CSV
                     }
                     command = "";
                 }
@@ -270,6 +298,18 @@ public class TelegramManageBotApplication {
                             categories) {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i));
                     }
+                }
+                //######################################################################################################
+
+                //Método para gerar um csv
+                if(update.message().text().equals("/generatecsv")) {
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira um dos comandos listados abaixo:\n"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/list\n"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbyname\n"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbycategory\n"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbylocation\n"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbydescription\n"));
+                    csv = true;
                 }
             }
         }
