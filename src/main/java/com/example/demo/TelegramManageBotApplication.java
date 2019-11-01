@@ -42,6 +42,9 @@ public class TelegramManageBotApplication {
         //controle de off-set, isto é, a partir deste ID será lido as mensagens pendentes na fila
         int m = 0;
 
+        String command = "";
+        String mensagem = "";
+
         //loop infinito pode ser alterado por algum timer de intervalo curto
         while (true) {
 
@@ -56,8 +59,7 @@ public class TelegramManageBotApplication {
 
                 //atualização do off-set
                 m = update.updateId() + 1;
-
-                System.out.println("Recebendo mensagem:" + update.message().text());
+                mensagem = update.message().text();
 
                 //envio de "Escrevendo" antes de enviar a resposta
                 baseResponse = bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
@@ -81,11 +83,12 @@ public class TelegramManageBotApplication {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
                     }
                 }
-                else if(update.message().text().equals("/findbyid")) {
+                if(update.message().text().equals("/findbyid")) {
+                    command = update.message().text();
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o ID"));
-                    bot.wait(10);
-                    String aux = update.message().replyToMessage().text();
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + aux);
+                }
+                if(command.equals("/findbyid")&&!command.equals(mensagem)) {
+                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + update.message().text());
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setRequestMethod("GET");
 
@@ -100,6 +103,7 @@ public class TelegramManageBotApplication {
                     ObjectMapper obj = new ObjectMapper();
                     Item item = obj.readValue(content.toString(),Item.class);
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
+                    command = "";
                 }
                 else if(update.message().text().equals("/findbyname")) {
 
