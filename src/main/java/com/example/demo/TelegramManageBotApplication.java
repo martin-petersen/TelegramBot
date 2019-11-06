@@ -1,8 +1,11 @@
 package com.example.demo;
 
+import com.example.demo.controller.CategoryCommandController;
+import com.example.demo.controller.ItemCommandController;
+import com.example.demo.controller.LocationCommandController;
+import com.example.demo.model.Category;
 import com.example.demo.model.Item;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.demo.model.Location;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ChatAction;
@@ -15,11 +18,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 @SpringBootApplication
@@ -43,8 +42,10 @@ public class TelegramManageBotApplication {
 
         String command = "";
         String mensagem = "";
-        boolean csv = false;
         List<Item> FileStorage;
+        LocationCommandController locationController = new LocationCommandController();
+        CategoryCommandController categoryController = new CategoryCommandController();
+        ItemCommandController itemCommandController = new ItemCommandController();
 
         //loop infinito pode ser alterado por algum timer de intervalo curto
         while (true) {
@@ -62,34 +63,18 @@ public class TelegramManageBotApplication {
                 m = update.updateId() + 1;
                 mensagem = update.message().text();
 
-                //envio de "Escrevendo" antes de enviar a resposta
                 baseResponse = bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
-                //verificação de ação de chat foi enviada com sucesso
-                //TODO organizar o código para ficar mais bonito
+
+
+
+                //TODO REQUESTS RELACIONADOS A ITENS
 
                 //Método para listar tudo
                 if (update.message().text().equals("/list")) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items");
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    if(!csv) {
-                        for (Item i:
-                                itens) {
-                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
-                        }
-                    } else {
-                        FileStorage = itens;
-                        //Método para gerar e enviar o CSV
+                    List<Item> itens = itemCommandController.listallItems();
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
                     }
                     command = "";
                 }
@@ -102,20 +87,7 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/findbyid")&&!command.equals(mensagem)) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + update.message().text());
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    Item item = obj.readValue(content.toString(), Item.class);
+                    Item item = itemCommandController.itemByID(mensagem);
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
                     command = "";
                 }
@@ -128,28 +100,10 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/findbyname")&&!command.equals(mensagem)) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byItem/" + update.message().text());
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    if(!csv) {
-                        for (Item i:
-                                itens) {
-                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
-                        }
-                    } else {
-                        FileStorage = itens;
-                        //Método para gerar e enviar o CSV
+                    List<Item> itens = itemCommandController.itemByName(mensagem);
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
                     }
                     command = "";
                 }
@@ -162,28 +116,10 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/findbycategory")&&!command.equals(mensagem)) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byCategory/" + update.message().text());
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    if(!csv) {
-                        for (Item i:
-                                itens) {
-                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
-                        }
-                    } else {
-                        FileStorage = itens;
-                        //Método para gerar e enviar o CSV
+                    List<Item> itens = itemCommandController.itemByCategory(mensagem);
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
                     }
                     command = "";
                 }
@@ -196,28 +132,10 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/findbylocation")&&!command.equals(mensagem)) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byLocation/" + update.message().text());
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    if(!csv) {
-                        for (Item i:
-                                itens) {
-                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
-                        }
-                    } else {
-                        FileStorage = itens;
-                        //Método para gerar e enviar o CSV
+                    List<Item> itens = itemCommandController.itemByLocation(mensagem);
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
                     }
                     command = "";
                 }
@@ -230,86 +148,146 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/findbydescription")&&!command.equals(mensagem)) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byDescription/" + update.message().text());
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    List<Item> itens = obj.readValue(content.toString(), new TypeReference<List<Item>>() {});
-                    if(!csv) {
-                        for (Item i:
-                                itens) {
-                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
-                        }
-                    } else {
-                        FileStorage = itens;
-                        //Método para gerar e enviar o CSV
+                    List<Item> itens = itemCommandController.itemByDescription(mensagem);
+                    for (Item i:
+                            itens) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
                     }
                     command = "";
                 }
                 //######################################################################################################
 
-                //Método para listar as localizações cadastradas
-                if(update.message().text().equals("/locations")) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/locations");
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    List<String> locations = obj.readValue(content.toString(), new TypeReference<List<String>>() {});
-                    for (String i:
-                            locations) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i));
-                    }
+                //Método para adicionar um item
+                if(update.message().text().equals("/post")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite as atributos no seguinte formato:"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Local,Categoria,Item,Descrição"));
+                    mensagem = command;
                 }
-                //######################################################################################################
 
-                //Método para listar as categorias cadastradas
-                if(update.message().text().equals("/category")) {
-                    URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/categories");
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String inputLine;
-                    StringBuffer content = new StringBuffer();
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-                    con.disconnect();
-                    ObjectMapper obj = new ObjectMapper();
-                    List<String> categories = obj.readValue(content.toString(), new TypeReference<List<String>>() {});
-                    for (String i:
-                            categories) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i));
-                    }
+                if(command.equals("/post")&&!command.equals(mensagem)) {
+                    itemCommandController.itemPost(mensagem);
+                    command = "";
                 }
                 //######################################################################################################
 
                 //Método para gerar um csv
                 if(update.message().text().equals("/generatecsv")) {
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira um dos comandos listados abaixo:\n"));
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/list\n"));
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbyname\n"));
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbycategory\n"));
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbylocation\n"));
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/findbydescription\n"));
-                    csv = true;
+                    List<Item> itens = itemCommandController.listallItems();
+                    //TODO RESTO DA FUNÇÂO PARA GERAR CSV
+                }
+
+                //TODO REQUESTS RELACIONADOS A LOCALIZAÇÔES
+
+                //Método para listar as localizações cadastradas
+                if(update.message().text().equals("/locations")) {
+                    List<Location> locations = locationController.listallLocations();
+                    for (Location i:
+                            locations) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
+                }
+
+
+                //######################################################################################################
+                if(update.message().text().equals("/bylocalid")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do local:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/bylocalid")&&!command.equals(mensagem)) {
+                    Location local = locationController.localByID(update.message().text());
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
+                    command = "";
+                }
+
+
+
+                //######################################################################################################
+                if(update.message().text().equals("/bylocalname")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome do local:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/bylocalname")&&!command.equals(mensagem)) {
+
+                    List<Location> locations = locationController.byLocationName(update.message().text());
+                    for (Location i:
+                            locations) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
+                }
+
+
+
+                //######################################################################################################
+                if(update.message().text().equals("/bylocaldescrip")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira a descrição do local:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/bylocaldescrip")&&!command.equals(mensagem)) {
+
+                    List<Location> locations = locationController.byLocationDescription(mensagem);
+                    for (Location i:
+                            locations) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
+                }
+
+                //TODO REQUESTS RELACIONADOS A CATEGORIAS
+
+                //Método para listar as categorias cadastradas
+                if(update.message().text().equals("/category")) {
+
+                    List<Category> categories = categoryController.listallCategories();
+                    for (Category i:
+                            categories) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                }
+
+                if(update.message().text().equals("/bycategid")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID da categoria:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/bycategid")&&!command.equals(mensagem)) {
+                    Category categorias = categoryController.categoryByID(mensagem);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
+                    command = "";
+                }
+                //######################################################################################################
+
+                if(update.message().text().equals("/bycategname")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome da categoria:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/bycategname")&&!command.equals(mensagem)) {
+                    List<Category> categorias = categoryController.byCategoryName(mensagem);
+                    for (Category i:
+                            categorias) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
+                }
+
+                if(update.message().text().equals("/bycategdescrip")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome da categoria:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/bycategdescrip")&&!command.equals(mensagem)) {
+                    List<Category> categorias = categoryController.byCategoryDescription(mensagem);
+                    for (Category i:
+                            categorias) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    }
+                    command = "";
                 }
             }
         }
