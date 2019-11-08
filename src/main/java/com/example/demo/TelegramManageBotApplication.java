@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.controller.CategoryCommandController;
+import com.example.demo.controller.CommandNotFound;
 import com.example.demo.controller.ItemCommandController;
 import com.example.demo.controller.LocationCommandController;
 import com.example.demo.model.Category;
@@ -46,6 +47,7 @@ public class TelegramManageBotApplication {
         LocationCommandController locationController = new LocationCommandController();
         CategoryCommandController categoryController = new CategoryCommandController();
         ItemCommandController itemCommandController = new ItemCommandController();
+        CommandNotFound autochat = new CommandNotFound();
 
         //loop infinito pode ser alterado por algum timer de intervalo curto
         while (true) {
@@ -62,15 +64,44 @@ public class TelegramManageBotApplication {
                 //atualização do off-set
                 m = update.updateId() + 1;
                 mensagem = update.message().text();
+                autochat.setCommand(update.message().text());
 
                 baseResponse = bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
+                if(!autochat.commandNotFound()) {
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Ops! Sua mensagem não corresponde a nenhum dos comandos" + "\n" + "Aguardo um comando para agir..."));
+                }
 
+                if(update.message().text().equals("/help")) {
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "/items - lista todos os itens\n" +
+                            "/locations - lista as localizações\n" +
+                            "/category - lista as categorias\n" +
+                            "/itempost - adiciona um item\n" +
+                            "/itemdelete - remove um item\n" +
+                            "/itemput - atualiza um item\n" +
+                            "/localpost - adiciona um local\n" +
+                            "/localdelete - remove um local\n" +
+                            "/categorypost - adiciona uma categoria\n" +
+                            "/categorydelete - remove uma categoria\n" +
+                            "/byitemid - encontra o item pelo id\n" +
+                            "/byitemname - busca pelo nome do item\n" +
+                            "/byitemcategory - busca pela categoria\n" +
+                            "/byitemlocation - busca pelo localização\n" +
+                            "/byitemdescription - busca pela descrição\n" +
+                            "/bylocalid - busca pelo id do local\n" +
+                            "/bylocalname - busca pelo nome do local\n" +
+                            "/bylocaldescrip - busca pela descrição do local\n" +
+                            "/bycategid - busca pelo id da categoria\n" +
+                            "/bycategname - busca pelo nome da categoria\n" +
+                            "/bycategdescrip - busca pela descrição da categoria\n" +
+                            "/importcsv - adicionar itens, locais e categorias a partir de um CSV\n" +
+                            "/exportcsv - gerar CSV com itens, locais e categorias"));
+                }
 
                 //TODO REQUESTS RELACIONADOS A ITENS
 
                 //Método para listar tudo
-                if (update.message().text().equals("/list")) {
+                if (update.message().text().equals("/items")) {
                     List<Item> itens = itemCommandController.listallItems();
                     if(itens.isEmpty()) {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados"));
@@ -85,12 +116,12 @@ public class TelegramManageBotApplication {
                 //######################################################################################################
 
                 //Método para buscar por ID
-                if(update.message().text().equals("/findbyid")) {
+                if(update.message().text().equals("/byitemid")) {
                     command = update.message().text();
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o ID:"));
                     mensagem = command;
                 }
-                if(command.equals("/findbyid")&&!command.equals(mensagem)) {
+                if(command.equals("/byitemid")&&!command.equals(mensagem)) {
                     Item item = itemCommandController.itemByID(mensagem);
                     if(item == null) {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Item não encontrado"));
@@ -102,12 +133,12 @@ public class TelegramManageBotApplication {
                 //######################################################################################################
 
                 //Método para buscar pelo nome do item
-                if(update.message().text().equals("/findbyname")) {
+                if(update.message().text().equals("/byitemname")) {
                     command = update.message().text();
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite o nome do item:"));
                     mensagem = command;
                 }
-                if(command.equals("/findbyname")&&!command.equals(mensagem)) {
+                if(command.equals("/byitemname")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByName(mensagem);
                     if(itens.isEmpty()) {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com esse nome"));
@@ -122,12 +153,12 @@ public class TelegramManageBotApplication {
                 //######################################################################################################
 
                 //Método para buscar pela categoria do item
-                if(update.message().text().equals("/findbycategory")) {
+                if(update.message().text().equals("/byitemcategory")) {
                     command = update.message().text();
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite a categoria:"));
                     mensagem = command;
                 }
-                if(command.equals("/findbycategory")&&!command.equals(mensagem)) {
+                if(command.equals("/byitemcategory")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByCategory(mensagem);
                     if(itens.isEmpty()) {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa categoria"));
@@ -142,12 +173,12 @@ public class TelegramManageBotApplication {
                 //######################################################################################################
 
                 //Método para buscar pela localização
-                if(update.message().text().equals("/findbylocation")) {
+                if(update.message().text().equals("/byitemlocation")) {
                     command = update.message().text();
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite a localização:"));
                     mensagem = command;
                 }
-                if(command.equals("/findbylocation")&&!command.equals(mensagem)) {
+                if(command.equals("/byitemlocation")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByLocation(mensagem);
                     if(itens.isEmpty()) {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados para esse local"));
@@ -162,12 +193,12 @@ public class TelegramManageBotApplication {
                 //######################################################################################################
 
                 //Método para busca pela descrição do item
-                if(update.message().text().equals("/findbydescription")) {
+                if(update.message().text().equals("/byitemdescription")) {
                     command = update.message().text();
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite a descrição:"));
                     mensagem = command;
                 }
-                if(command.equals("/findbydescription")&&!command.equals(mensagem)) {
+                if(command.equals("/byitemdescription")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByDescription(mensagem);
                     if(itens.isEmpty()) {
                         sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa descrição"));
@@ -206,9 +237,14 @@ public class TelegramManageBotApplication {
                 //######################################################################################################
 
                 //Método para gerar um csv
-                if(update.message().text().equals("/generatecsv")) {
-                    List<Item> itens = itemCommandController.listallItems();
-                    //TODO RESTO DA FUNÇÂO PARA GERAR CSV
+                if(update.message().text().equals("/exportcsv")) {
+                    //TODO FUNÇÂO PARA GERAR CSV
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Em breve!"));
+                }
+
+                if(update.message().text().equals("/importcsv")) {
+                    //TODO RESTO DA FUNÇÂO PARA IMPORTAR DADOS DE UM CSV
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Em breve!"));
                 }
 
                 //TODO REQUESTS RELACIONADOS A LOCALIZAÇÔES
