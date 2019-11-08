@@ -1,13 +1,22 @@
 package com.example.demo.model;
 
+
 public class Item {
     private int id;
+
     private Location location;
     private Category category;
     private String item;
     private String description;
 
     public Item() {
+    }
+
+    public Item(Location location, Category category, String item, String description) {
+        this.location = location;
+        this.category = category;
+        this.item = item;
+        this.description = description;
     }
 
     public int getId() {

@@ -1,11 +1,18 @@
 package com.example.demo.model;
 
+
 public class Location {
     private int id;
+
     private String location;
     private String description;
 
     public Location() {
+    }
+
+    public Location(String location, String description) {
+        this.location = location;
+        this.description = description;
     }
 
     public int getId() {

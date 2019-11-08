@@ -1,11 +1,18 @@
 package com.example.demo.model;
 
+
 public class Category {
     private int id;
+
     private String category;
     private String description;
 
     public Category() {
+    }
+
+    public Category(String category, String description) {
+        this.category = category;
+        this.description = description;
     }
 
     public int getId() {

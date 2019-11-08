@@ -72,9 +72,13 @@ public class TelegramManageBotApplication {
                 //Método para listar tudo
                 if (update.message().text().equals("/list")) {
                     List<Item> itens = itemCommandController.listallItems();
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(itens.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados"));
+                    } else {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
                     command = "";
                 }
@@ -88,7 +92,11 @@ public class TelegramManageBotApplication {
                 }
                 if(command.equals("/findbyid")&&!command.equals(mensagem)) {
                     Item item = itemCommandController.itemByID(mensagem);
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
+                    if(item == null) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Item não encontrado"));
+                    } else {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
+                    }
                     command = "";
                 }
                 //######################################################################################################
@@ -101,9 +109,13 @@ public class TelegramManageBotApplication {
                 }
                 if(command.equals("/findbyname")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByName(mensagem);
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(itens.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com esse nome"));
+                    } else {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
                     command = "";
                 }
@@ -117,9 +129,13 @@ public class TelegramManageBotApplication {
                 }
                 if(command.equals("/findbycategory")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByCategory(mensagem);
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(itens.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa categoria"));
+                    } else {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
                     command = "";
                 }
@@ -133,9 +149,13 @@ public class TelegramManageBotApplication {
                 }
                 if(command.equals("/findbylocation")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByLocation(mensagem);
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(itens.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados para esse local"));
+                    } else {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
                     command = "";
                 }
@@ -149,24 +169,38 @@ public class TelegramManageBotApplication {
                 }
                 if(command.equals("/findbydescription")&&!command.equals(mensagem)) {
                     List<Item> itens = itemCommandController.itemByDescription(mensagem);
-                    for (Item i:
-                            itens) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(itens.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa descrição"));
+                    } else {
+                        for (Item i:
+                                itens) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
                     command = "";
                 }
                 //######################################################################################################
 
                 //Método para adicionar um item
-                if(update.message().text().equals("/post")) {
+                if(update.message().text().equals("/itemput")) {
                     command = update.message().text();
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite as atributos no seguinte formato:"));
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Local,Categoria,Item,Descrição"));
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "ID,Local,Categoria,Item,Descrição"));
                     mensagem = command;
                 }
 
-                if(command.equals("/post")&&!command.equals(mensagem)) {
-                    itemCommandController.itemPost(mensagem);
+                if(command.equals("/itemput")&&!command.equals(mensagem)) {
+                    String[] itemAtributes = mensagem.split(",");
+                    Location local = new Location();
+                    local.setLocation(itemAtributes[1]);
+                    Category categoria = new Category();
+                    categoria.setCategory(itemAtributes[2]);
+                    Item item = new Item(local,categoria,itemAtributes[3],itemAtributes[4]);
+                    System.out.println(item.toString());
+                    item.setId(Integer.parseInt(itemAtributes[0]));
+                    System.out.println(item.toString());
+                    String response = itemCommandController.PostItem(item);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
+
                     command = "";
                 }
                 //######################################################################################################
@@ -182,9 +216,13 @@ public class TelegramManageBotApplication {
                 //Método para listar as localizações cadastradas
                 if(update.message().text().equals("/locations")) {
                     List<Location> locations = locationController.listallLocations();
-                    for (Location i:
-                            locations) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(locations.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há locais cadastrados"));
+                    } else {
+                        for (Location i:
+                                locations) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
                     command = "";
                 }
@@ -198,7 +236,11 @@ public class TelegramManageBotApplication {
                 }
                 if(command.equals("/bylocalid")&&!command.equals(mensagem)) {
                     Location local = locationController.localByID(update.message().text());
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
+                    if(local == null) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Local não encontrado"));
+                    } else {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
+                    }
                     command = "";
                 }
 
@@ -211,12 +253,13 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/bylocalname")&&!command.equals(mensagem)) {
-
-                    List<Location> locations = locationController.byLocationName(update.message().text());
-                    for (Location i:
-                            locations) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    Location local = locationController.byLocationName(update.message().text());
+                    if(local == null) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Local não encontrado"));
+                    } else {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
                     }
+
                     command = "";
                 }
 
@@ -229,12 +272,40 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/bylocaldescrip")&&!command.equals(mensagem)) {
-
                     List<Location> locations = locationController.byLocationDescription(mensagem);
-                    for (Location i:
-                            locations) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(locations.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há locais cadastrados com essa descrição"));
+                    } else {
+                        for (Location i:
+                                locations) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
+                    command = "";
+                }
+
+                if(update.message().text().equals("/localpost")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Local,Descrição"));
+                    mensagem = command;
+                }
+
+                if(command.equals("/localpost")&&!command.equals(mensagem)) {
+                    String[] localAtributes = mensagem.split(",");
+                    Location local = new Location(localAtributes[0],localAtributes[1]);
+                    String response = locationController.PostLocation(local);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
+                    command = "";
+                }
+
+                if(update.message().text().equals("/localdelete")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do local:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/localdelete")&&!command.equals(mensagem)) {
+                    String response = locationController.DeleteLocal(mensagem);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
                 }
 
@@ -242,11 +313,14 @@ public class TelegramManageBotApplication {
 
                 //Método para listar as categorias cadastradas
                 if(update.message().text().equals("/category")) {
-
                     List<Category> categories = categoryController.listallCategories();
-                    for (Category i:
-                            categories) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    if(categories.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há categorias cadastradas"));
+                    } else {
+                        for (Category i:
+                                categories) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
                 }
 
@@ -257,7 +331,11 @@ public class TelegramManageBotApplication {
                 }
                 if(command.equals("/bycategid")&&!command.equals(mensagem)) {
                     Category categorias = categoryController.categoryByID(mensagem);
-                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
+                    if(categorias == null) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Categoria não encontrada"));
+                    } else {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
+                    }
                     command = "";
                 }
                 //######################################################################################################
@@ -268,11 +346,13 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/bycategname")&&!command.equals(mensagem)) {
-                    List<Category> categorias = categoryController.byCategoryName(mensagem);
-                    for (Category i:
-                            categorias) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    Category categorias = categoryController.byCategoryName(mensagem);
+                    if(categorias == null) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Categoria não encontrada"));
+                    } else {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
                     }
+
                     command = "";
                 }
 
@@ -282,11 +362,51 @@ public class TelegramManageBotApplication {
                     mensagem = command;
                 }
                 if(command.equals("/bycategdescrip")&&!command.equals(mensagem)) {
-                    List<Category> categorias = categoryController.byCategoryDescription(mensagem);
-                    for (Category i:
-                            categorias) {
-                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    List<Category> categories = categoryController.byCategoryDescription(mensagem);
+                    if(categories.isEmpty()) {
+                        sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Não há categorias cadastradas"));
+                    } else {
+                        for (Category i:
+                                categories) {
+                            sendResponse = bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        }
                     }
+                    command = "";
+                }
+
+                if(update.message().text().equals("/categorypost")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Categoria,Descrição"));
+                    mensagem = command;
+                }
+
+                if(command.equals("/categorypost")&&!command.equals(mensagem)) {
+                    String[] categoryAtributes = mensagem.split(",");
+                    Category category = new Category(categoryAtributes[0],categoryAtributes[1]);
+                    String response = categoryController.PostCategory(category);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
+                    command = "";
+                }
+
+                if(update.message().text().equals("/categorydelete")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID da categoria:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/categorydelete")&&!command.equals(mensagem)) {
+                    String response = categoryController.DeleteCategoria(mensagem);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
+                    command = "";
+                }
+
+                if(update.message().text().equals("/itemdelete")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do item:\n"));
+                    mensagem = command;
+                }
+                if(command.equals("/itemdelete")&&!command.equals(mensagem)) {
+                    String response = itemCommandController.DeleteItem(mensagem);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
                 }
             }

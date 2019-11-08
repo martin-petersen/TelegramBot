@@ -5,12 +5,15 @@ import com.example.demo.model.Item;
 import com.example.demo.model.Location;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class ItemCommandController {
@@ -43,6 +46,9 @@ public class ItemCommandController {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + id);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
+        if(con.getResponseCode() != 200) {
+            return null;
+        }
 
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;
@@ -142,37 +148,59 @@ public class ItemCommandController {
 
 
     //REQUISIÇÃO POST
-    public String itemPost(String item) throws IOException {
-        LocationCommandController locationController = new LocationCommandController();
-        CategoryCommandController categoryController = new CategoryCommandController();
-        Location localization = null;
-        Category categoria = null;
-        String[] split = item.split(",");
-        List<Location> local = locationController.listallLocations();
-        if(!local.isEmpty()) {
-            for (Location i:
-                    local) {
-                localization = i;
-            }
-            List<Category> categories = categoryController.listallCategories();
-            if(!categories.isEmpty()) {
-                for (Category i:
-                        categories) {
-                    categoria = i;
-                }
-                Item post = new Item();
-                post.setLocation(localization);
-                post.setCategory(categoria);
-                post.setItem(split[2]);
-                post.setDescription(split[3]);
-            } else {
-                return "Categoria não cadastrada";
-            }
-        } else {
-            return "Local não cadastrado";
+    public String PostItem(Item item) throws IOException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String jsonInputString = ow.writeValueAsString(item);
+
+        URL url = new URL("http://manage-bot-ufrn.herokuapp.com/items");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json; utf-8");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+        try(OutputStream os = con.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+            con.getResponseCode();
         }
-        return null;
+        if(con.getResponseCode()==200) {
+            return "Cadastro de item feito com sucesso";
+        } else {
+            return "Ops! Houve um erro no cadastro do item, verifique se o Local ou Categoria já estão cadastrados no sistema";
+        }
     }
     //REQUISIÇÃO PUT
+    public String PutItem(Item item) throws IOException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String jsonInputString = ow.writeValueAsString(item);
+        System.out.println(jsonInputString);
+
+        URL url = new URL("http://manage-bot-ufrn.herokuapp.com/items");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json; utf-8");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+        try(OutputStream os = con.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+            con.getResponseCode();
+        }
+        if(con.getResponseCode()==200) {
+            return "Atualização do item feita com sucesso";
+        } else {
+            return "Ops! Houve um erro na atualização do item";
+        }
+    }
     //REQUISIÇÃO DELETE
+    public String DeleteItem(String id) throws IOException {
+        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + id);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("DELETE");
+        if(con.getResponseCode()==200) {
+            return "Remoção de item feita com sucesso";
+        } else {
+            return "Ops! Houve um erro na remoção";
+        }
+    }
 }
