@@ -68,7 +68,7 @@ public class TelegramManageBotApplication {
 
                 baseResponse = bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
-                if(!autochat.commandNotFound()) {
+                if(!autochat.commandNotFound() && !command.equals("")) {
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Ops! Sua mensagem não corresponde a nenhum dos comandos" + "\n" + "Aguardo um comando para agir..."));
                 }
 
