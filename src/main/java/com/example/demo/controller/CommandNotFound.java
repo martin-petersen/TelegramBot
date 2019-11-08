@@ -26,7 +26,8 @@ public class CommandNotFound {
         && !getCommand().equals("/bylocalid") && !getCommand().equals("/bylocalname")
         && !getCommand().equals("/bylocaldescrip") && !getCommand().equals("/bycategid")
         && !getCommand().equals("/bycategname") && !getCommand().equals("/bycategdescrip")
-        && !getCommand().equals("/importcsv") && !getCommand().equals("/exportcsv")) {
+        && !getCommand().equals("/importcsv") && !getCommand().equals("/exportcsv")
+                && !getCommand().equals("/start")) {
             return false;
         }
         return true;
