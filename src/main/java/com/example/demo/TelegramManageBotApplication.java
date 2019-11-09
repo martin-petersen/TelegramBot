@@ -219,6 +219,25 @@ public class TelegramManageBotApplication {
                 //######################################################################################################
 
                 //Método para adicionar um item
+                if(update.message().text().equals("/itempost")) {
+                    command = update.message().text();
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "ID,Local,Categoria,Item,Descrição"));
+                    mensagem = command;
+                }
+
+                if(command.equals("/itempost")&&!command.equals(mensagem)) {
+                    String[] itemAtributes = mensagem.split(",");
+                    Location local = new Location();
+                    local.setLocation(itemAtributes[0]);
+                    Category categoria = new Category();
+                    categoria.setCategory(itemAtributes[1]);
+                    Item item = new Item(local,categoria,itemAtributes[2],itemAtributes[3]);
+                    String response = itemCommandController.PostItem(item);
+                    sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
+
+                    command = "";
+                }
+                //Método para atualizar um item
                 if(update.message().text().equals("/itemput")) {
                     command = update.message().text();
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "ID,Local,Categoria,Item,Descrição"));
@@ -232,10 +251,8 @@ public class TelegramManageBotApplication {
                     Category categoria = new Category();
                     categoria.setCategory(itemAtributes[2]);
                     Item item = new Item(local,categoria,itemAtributes[3],itemAtributes[4]);
-                    System.out.println(item.toString());
                     item.setId(Integer.parseInt(itemAtributes[0]));
-                    System.out.println(item.toString());
-                    String response = itemCommandController.PostItem(item);
+                    String response = itemCommandController.PutItem(item);
                     sendResponse = bot.execute(new SendMessage(update.message().chat().id(), response));
 
                     command = "";
