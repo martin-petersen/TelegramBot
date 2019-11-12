@@ -23,6 +23,12 @@ public class ItemCommandController {
     //REQUISIÇÔES GET:
 
     //GET ALL
+
+    /**
+     * Method get for all itens on data center
+     * @return List of itens
+     * @throws IOException
+     */
     public List<Item> listallItems() throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -42,6 +48,13 @@ public class ItemCommandController {
 
 
     //GET BY ID
+
+    /**
+     * Method get item by ID
+     * @param id
+     * @return A item object with specific ID
+     * @throws IOException
+     */
     public Item itemByID(String id) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + id);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -64,8 +77,14 @@ public class ItemCommandController {
 
 
     //GET BY NAME
-    public List<Item> itemByName(String item) throws IOException {
-        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byItem/" + item);
+    /**
+     * Method get item by name
+     * @param itemName
+     * @return A item object with specific name
+     * @throws IOException
+     */
+    public List<Item> itemByName(String itemName) throws IOException {
+        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byItem/" + itemName);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
@@ -82,8 +101,14 @@ public class ItemCommandController {
     }
 
     //GET BY CATEGORY
-    public List<Item> itemByCategory(String item) throws IOException {
-        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byCategory/" + item);
+    /**
+     * Method get item by category
+     * @param categoryName
+     * @return A item object with specific category
+     * @throws IOException
+     */
+    public List<Item> itemByCategory(String categoryName) throws IOException {
+        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byCategory/" + categoryName);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
@@ -100,8 +125,14 @@ public class ItemCommandController {
     }
 
     //GET BY LOCATION
-    public List<Item> itemByLocation(String item) throws IOException {
-        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byLocation/" + item);
+    /**
+     * Method get item by local
+     * @param localName
+     * @return A item object with specific name
+     * @throws IOException
+     */
+    public List<Item> itemByLocation(String localName) throws IOException {
+        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byLocation/" + localName);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
@@ -119,8 +150,14 @@ public class ItemCommandController {
 
 
     //GET BY DESCRIPTION
-    public List<Item> itemByDescription(String item) throws IOException {
-        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byDescription/" + item);
+    /**
+     * Method get item by description
+     * @param itemDescription
+     * @return A item object with specific name
+     * @throws IOException
+     */
+    public List<Item> itemByDescription(String itemDescription) throws IOException {
+        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byDescription/" + itemDescription);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
@@ -137,17 +174,14 @@ public class ItemCommandController {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     //REQUISIÇÃO POST
+
+    /**
+     * Method for create new Item
+     * @param item
+     * @return passed or failed
+     * @throws IOException
+     */
     public String PostItem(Item item) throws IOException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String jsonInputString = ow.writeValueAsString(item);
@@ -170,6 +204,13 @@ public class ItemCommandController {
         }
     }
     //REQUISIÇÃO PUT
+
+    /**
+     * Method for update any info from item
+     * @param item
+     * @return passed or failed
+     * @throws IOException
+     */
     public String PutItem(Item item) throws IOException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String jsonInputString = ow.writeValueAsString(item);
@@ -192,7 +233,15 @@ public class ItemCommandController {
             return "Ops! Houve um erro na atualização do item";
         }
     }
+
     //REQUISIÇÃO DELETE
+
+    /**
+     * Method for delete a item
+     * @param id
+     * @return passed or failed
+     * @throws IOException
+     */
     public String DeleteItem(String id) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/" + id);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

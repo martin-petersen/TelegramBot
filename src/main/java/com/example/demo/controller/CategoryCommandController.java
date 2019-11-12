@@ -21,7 +21,11 @@ public class CategoryCommandController {
 
     //REQUISIÇÔES GET:
 
-
+    /**
+     * Method get all categories from data center
+     * @return List<Category> with all categories on data center
+     * @throws IOException
+     */
     //GET ALL
     public List<Category> listallCategories() throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/category");
@@ -42,6 +46,13 @@ public class CategoryCommandController {
 
 
     //GET BY ID
+
+    /**
+     * Method get categories by ID
+     * @param id
+     * @return A Category object with specific ID
+     * @throws IOException
+     */
     public Category categoryByID (String id) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/category/" + id);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -64,6 +75,13 @@ public class CategoryCommandController {
 
 
     //GET BY NAME
+
+    /**
+     * Method get categories by Name
+     * @param categoria
+     * @return Category with specific name
+     * @throws IOException
+     */
     public Category byCategoryName(String categoria) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/category/byCategoryName/" + categoria);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -86,6 +104,13 @@ public class CategoryCommandController {
 
 
     //GET BY DESCRIPTION
+
+    /**
+     * Method get categories by description
+     * @param categoria
+     * @return Category with specific description
+     * @throws IOException
+     */
     public List<Category> byCategoryDescription(String categoria) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/category/byCategoryDescription/" + categoria);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -104,18 +129,14 @@ public class CategoryCommandController {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     //REQUISIÇÃO POST
 
+    /**
+     * Method to create new Category and post on data center
+     * @param category
+     * @return String with Message passed or failed
+     * @throws IOException
+     */
     public String PostCategory(Category category) throws IOException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String jsonInputString = ow.writeValueAsString(category);
@@ -139,6 +160,13 @@ public class CategoryCommandController {
     }
 
     //REQUISIÇÃO DELETE
+
+    /**
+     * Method to delete Category from data center
+     * @param id
+     * @return Message passed or failed
+     * @throws IOException
+     */
     public String DeleteCategoria(String id) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/category/" + id);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

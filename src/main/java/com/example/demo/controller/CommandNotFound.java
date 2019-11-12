@@ -3,9 +3,16 @@ package com.example.demo.controller;
 public class CommandNotFound {
     private String command;
 
+    /**
+     * Constructor
+     */
     public CommandNotFound() {
     }
 
+    /**
+     * Get command
+     * @return command
+     */
     public String getCommand() {
         return command;
     }
@@ -14,6 +21,10 @@ public class CommandNotFound {
         this.command = command;
     }
 
+    /**
+     * Compare if command exist
+     * @return boolean
+     */
     public boolean commandNotFound() {
         if(!getCommand().equals("/help") && !getCommand().equals("/items")
         && !getCommand().equals("/locations") && !getCommand().equals("/category")
