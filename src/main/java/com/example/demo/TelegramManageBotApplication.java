@@ -83,6 +83,7 @@ public class TelegramManageBotApplication {
                             "/categorydelete - remove uma categoria\n" +
                             "/byitemid - encontra o item pelo id\n" +
                             "/byitemname - busca pelo nome do item\n" +
+                            "/byitemtombo - busca pelo tombo do item\n" +
                             "/byitemcategory - busca pela categoria\n" +
                             "/byitemlocation - busca pelo localização\n" +
                             "/byitemdescription - busca pela descrição\n" +
@@ -92,7 +93,6 @@ public class TelegramManageBotApplication {
                             "/bycategid - busca pelo id da categoria\n" +
                             "/bycategname - busca pelo nome da categoria\n" +
                             "/bycategdescrip - busca pela descrição da categoria\n" +
-                            "/importcsv - adicionar itens, locais e categorias a partir de um CSV\n" +
                             "/exportcsv - gerar CSV com itens, locais e categorias"));
                 }
 
@@ -278,11 +278,6 @@ public class TelegramManageBotApplication {
                 //Método para gerar um csv
                 else if(update.message().text().equals("/exportcsv")) {
                     //TODO FUNÇÂO PARA GERAR CSV
-                    bot.execute(new SendMessage(update.message().chat().id(), "Em breve!"));
-                }
-
-                else if(update.message().text().equals("/importcsv")) {
-                    //TODO RESTO DA FUNÇÂO PARA IMPORTAR DADOS DE UM CSV
                     bot.execute(new SendMessage(update.message().chat().id(), "Em breve!"));
                 }
 
