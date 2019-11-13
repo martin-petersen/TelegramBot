@@ -38,7 +38,7 @@ public class CommandNotFound {
         && !getCommand().equals("/bylocaldescrip") && !getCommand().equals("/bycategid")
         && !getCommand().equals("/bycategname") && !getCommand().equals("/bycategdescrip")
         && !getCommand().equals("/byitemtombo") && !getCommand().equals("/exportcsv")
-                && !getCommand().equals("/start")) {
+        && !getCommand().equals("/start") && !getCommand().equals("")) {
             return false;
         }
         return true;
