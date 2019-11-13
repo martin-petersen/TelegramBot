@@ -488,7 +488,7 @@ public class TelegramManageBotApplication {
                     command = "";
                 }
 
-                else if(!autochat.commandNotFound() && command.equals("")) {
+                else if(!autochat.commandNotFound() && !command.equals("")) {
                     bot.execute(new SendMessage(update.message().chat().id(), "Ops! Sua mensagem não corresponde a nenhum dos comandos" + "\n" + "Aguardo um comando para agir..."));
                 }
             }
