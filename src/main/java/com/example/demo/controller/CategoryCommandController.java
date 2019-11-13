@@ -21,12 +21,13 @@ public class CategoryCommandController {
 
     //REQUISIÇÔES GET:
 
+    //GET ALL
+
     /**
      * Method get all categories from data center
-     * @return List<Category> with all categories on data center
+     * @return List with all categories on data center
      * @throws IOException
      */
-    //GET ALL
     public List<Category> listallCategories() throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/category");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

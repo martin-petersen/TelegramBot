@@ -26,7 +26,7 @@ public class ItemCommandController {
 
     /**
      * Method get for all itens on data center
-     * @return List of itens
+     * @return List of items
      * @throws IOException
      */
     public List<Item> listallItems() throws IOException {
@@ -76,11 +76,41 @@ public class ItemCommandController {
     }
 
 
+    //GET BY TOMBO
+
+    /**
+     * Method get item by tombo
+     * @param itemTombo
+     * @return A item object with specific tombo
+     * @throws IOException
+     */
+    public Item itemByTombo(String itemTombo) throws IOException {
+        URL url = new URL("https://manage-bot-ufrn.herokuapp.com/items/byTombo/" + itemTombo);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        if(con.getResponseCode() != 200) {
+            return null;
+        }
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer content = new StringBuffer();
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        in.close();
+        con.disconnect();
+        ObjectMapper obj = new ObjectMapper();
+        return obj.readValue(content.toString(), Item.class);
+    }
+
+
     //GET BY NAME
+
     /**
      * Method get item by name
      * @param itemName
-     * @return A item object with specific name
+     * @return A List of items objects with close names
      * @throws IOException
      */
     public List<Item> itemByName(String itemName) throws IOException {
@@ -101,6 +131,7 @@ public class ItemCommandController {
     }
 
     //GET BY CATEGORY
+
     /**
      * Method get item by category
      * @param categoryName
@@ -125,6 +156,7 @@ public class ItemCommandController {
     }
 
     //GET BY LOCATION
+
     /**
      * Method get item by local
      * @param localName
@@ -150,6 +182,7 @@ public class ItemCommandController {
 
 
     //GET BY DESCRIPTION
+
     /**
      * Method get item by description
      * @param itemDescription

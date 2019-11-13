@@ -6,6 +6,7 @@ public class Item {
 
     private Location location;
     private Category category;
+    private int tombo;
     private String item;
     private String description;
 
@@ -27,6 +28,7 @@ public class Item {
         this.id = id;
     }
 
+
     public Location getLocation() {
         return location;
     }
@@ -44,6 +46,14 @@ public class Item {
         this.category = category;
     }
 
+
+    public int getTombo() {
+        return tombo;
+    }
+
+    public void setTombo(int tombo) {
+        this.tombo = tombo;
+    }
 
     public String getItem() {
         return item;
@@ -65,6 +75,7 @@ public class Item {
     @Override
     public String toString() {
         return "ID: " + id + "\n" +
+                "Tombo: " + tombo + "\n" +
                 "Local: " + location.getLocation() + "\n" +
                 "Categoria: " + category.getCategory() + "\n" +
                 "Item: " + item + "\n" +

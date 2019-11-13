@@ -20,8 +20,13 @@ public class LocationCommandController {
 
     //REQUISIÇÔES GET:
 
-
     //GET ALL
+
+    /**
+     * Method get all locations from data center
+     * @return List with all locations on data center
+     * @throws IOException
+     */
     public List<Location> listallLocations() throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/locations");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -40,6 +45,13 @@ public class LocationCommandController {
 
 
     //GET BY ID
+
+    /**
+     * Method get locations by ID
+     * @param id
+     * @return A Location object with specific ID
+     * @throws IOException
+     */
     public Location localByID (String id) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/locations/" + id);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -62,6 +74,13 @@ public class LocationCommandController {
 
 
     //GET BY NAME
+
+    /**
+     * Method get locations by Name
+     * @param location
+     * @return Location with specific name
+     * @throws IOException
+     */
     public Location byLocationName(String location) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/locations/byLocationName/" + location);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -84,6 +103,13 @@ public class LocationCommandController {
 
 
     //GET BY DESCRIPTION
+
+    /**
+     * Method get location by description
+     * @param location
+     * @return Location with specific description
+     * @throws IOException
+     */
     public List<Location> byLocationDescription(String location) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/locations/byLocationDescription/" + location);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -103,6 +129,13 @@ public class LocationCommandController {
 
 
     //REQUISIÇÃO POST
+
+    /**
+     * Method to create new Location and post on data center
+     * @param location
+     * @return String with Message passed or failed
+     * @throws IOException
+     */
     public String PostLocation(Location location) throws IOException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String jsonInputString = ow.writeValueAsString(location);
@@ -127,6 +160,12 @@ public class LocationCommandController {
 
     //REQUISIÇÃO DELETE
 
+    /**
+     * Method to delete Location from data center
+     * @param id
+     * @return Message passed or failed
+     * @throws IOException
+     */
     public String DeleteLocal(String id) throws IOException {
         URL url = new URL("https://manage-bot-ufrn.herokuapp.com/locations/" + id);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
