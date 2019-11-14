@@ -10,12 +10,8 @@ import com.example.demo.model.Location;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ChatAction;
-import com.pengrad.telegrambot.request.GetUpdates;
-import com.pengrad.telegrambot.request.SendChatAction;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
-import com.pengrad.telegrambot.response.SendResponse;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -39,7 +35,6 @@ public class TelegramManageBotApplication {
 
         String command = "";
         String mensagem = "";
-        List<Item> FileStorage;
         LocationCommandController locationController = new LocationCommandController();
         CategoryCommandController categoryController = new CategoryCommandController();
         ItemCommandController itemCommandController = new ItemCommandController();
@@ -64,7 +59,13 @@ public class TelegramManageBotApplication {
 
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
-                //TODO MENSAGEM DE BOASVINDAS DO COMANDO START
+                if(update.message().photo() != null) {
+                    bot.execute(new SendPhoto(update.message().chat().id(),"https://i.ibb.co/7KcXk8C/Texto-Motherfucker.png"));
+                    update.poll();
+                    continue;
+                }
+
+                bot.execute(new SendDocument());
 
                 if(update.message().text().equals("/start")) {
                     bot.execute(new SendMessage(update.message().chat().id(), "Seja bem vindo ao Manage UFRN Bot"));

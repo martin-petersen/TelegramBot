@@ -46,4 +46,8 @@ public class Location {
                 "Local: " + location + "\n" +
                 "Descrição: " + description + "\n\n\n";
     }
+
+    public String toCSV() {
+        return getId() + "," + getLocation() + "," + getDescription();
+    }
 }

@@ -82,4 +82,13 @@ public class Item {
                 "Descrição: " + description +
                 "\n\n\n";
     }
+
+    public String toCSV() {
+        return getId() + "," +
+                getTombo() + "," +
+                getItem() + "," +
+                getLocation().toCSV() + "," +
+                getCategory().toCSV() + "," +
+                getDescription() + "\n";
+    }
 }

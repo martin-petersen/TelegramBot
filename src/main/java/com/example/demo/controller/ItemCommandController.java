@@ -7,11 +7,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -285,4 +284,23 @@ public class ItemCommandController {
             return "Ops! Houve um erro na remoção";
         }
     }
+
+    //GERAR CSV
+
+    /**
+     *
+     */
+    public void ConvertJsonToCSV(List<Item> li) throws IOException {
+        StringBuilder CSV = new StringBuilder();
+        for (Item i:
+                li) {
+            CSV.append(i.toCSV());
+        }
+        File file = new File("items.csv");
+        FileWriter fw = new FileWriter(file);
+        fw.write(CSV.toString());
+        fw.close();
+    }
+
+
 }

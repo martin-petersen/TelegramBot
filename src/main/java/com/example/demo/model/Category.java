@@ -46,4 +46,8 @@ public class Category {
                 "Categoria: " + category + "\n" +
                 "Descrição: " + description + "\n\n\n";
     }
+
+    public String toCSV() {
+        return getId() + "," + getCategory() + "," + getDescription();
+    }
 }
