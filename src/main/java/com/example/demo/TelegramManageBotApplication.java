@@ -65,8 +65,6 @@ public class TelegramManageBotApplication {
                     continue;
                 }
 
-                //bot.execute(new SendDocument());
-
                 if(update.message().text().equals("/start")) {
                     bot.execute(new SendMessage(update.message().chat().id(), "Seja bem vindo ao Manage UFRN Bot"));
                 }
