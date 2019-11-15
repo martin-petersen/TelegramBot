@@ -285,12 +285,7 @@ public class ItemCommandController {
         }
     }
 
-    //GERAR CSV
-
-    /**
-     *
-     */
-    public void ConvertJsonToCSV(List<Item> li) throws IOException {
+    public void CSV(List<Item> li) throws IOException {
         StringBuilder CSV = new StringBuilder();
         for (Item i:
                 li) {
@@ -301,6 +296,4 @@ public class ItemCommandController {
         fw.write(CSV.toString());
         fw.close();
     }
-
-
 }

@@ -1,9 +1,6 @@
 package com.example.demo;
 
-import com.example.demo.controller.CategoryCommandController;
-import com.example.demo.controller.CommandNotFound;
-import com.example.demo.controller.ItemCommandController;
-import com.example.demo.controller.LocationCommandController;
+import com.example.demo.controller.*;
 import com.example.demo.model.Category;
 import com.example.demo.model.Item;
 import com.example.demo.model.Location;
@@ -15,6 +12,7 @@ import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -60,13 +58,38 @@ public class TelegramManageBotApplication {
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
                 if(update.message().photo() != null) {
-                    bot.execute(new SendPhoto(update.message().chat().id(),"https://i.ibb.co/7KcXk8C/Texto-Motherfucker.png"));
+                    bot.execute(new SendPhoto(update.message().chat().id(),new File("texto-motherfucker.png")));
+                    update.poll();
+                    continue;
+                }
+
+                if(update.message().animation() != null) {
+                    bot.execute(new SendAnimation(update.message().chat().id(),new File("texto-motherfucker.gif")));
+                    update.poll();
+                    continue;
+                }
+
+                if(update.message().video() != null) {
+                    bot.execute(new SendVideo(update.message().chat().id(),new File("texto-motherfucker.mp4")));
+                    update.poll();
+                    continue;
+                }
+
+                if(update.message().sticker() != null) {
+                    bot.execute(new SendSticker(update.message().chat().id(),"CAADAQADAgADRWVwJ3EnrF7KD5K-FgQ"));
+                    update.poll();
+                    continue;
+                }
+
+                if(update.message().audio() != null) {
+                    bot.execute(new SendAudio(update.message().chat().id(),"CQADAQADsQADX8hxRiywc8rRo0w6FgQ"));
                     update.poll();
                     continue;
                 }
 
                 if(update.message().text().equals("/start")) {
-                    bot.execute(new SendMessage(update.message().chat().id(), "Seja bem vindo ao Manage UFRN Bot"));
+                    bot.execute(new SendMessage(update.message().chat().id(), "Seja bem vindo ao Manage UFRN Bot.\n" +
+                            "Para utilizar os seviços utilize comandos de texto\n"));
                 }
 
                 else if(update.message().text().equals("/help")) {
@@ -139,7 +162,7 @@ public class TelegramManageBotApplication {
                 }
 
                 else if(command.equals("/byitemtombo")&&!command.equals(mensagem)) {
-                    Item item = itemCommandController.itemByID(mensagem);
+                    Item item = itemCommandController.itemByTombo(mensagem);
                     if(item == null) {
                         bot.execute(new SendMessage(update.message().chat().id(), "Item não encontrado"));
                     } else {
@@ -276,8 +299,8 @@ public class TelegramManageBotApplication {
 
                 //Método para gerar um csv
                 else if(update.message().text().equals("/exportcsv")) {
-                    //TODO FUNÇÂO PARA GERAR CSV
-                    bot.execute(new SendMessage(update.message().chat().id(), "Em breve!"));
+                    itemCommandController.CSV(itemCommandController.listallItems());
+                    bot.execute(new SendDocument(update.message().chat().id(), new File("items.csv")));
                 }
 
                 //TODO REQUESTS RELACIONADOS A LOCALIZAÇÔES
