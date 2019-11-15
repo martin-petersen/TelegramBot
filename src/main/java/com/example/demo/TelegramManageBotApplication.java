@@ -518,7 +518,7 @@ public class TelegramManageBotApplication {
                     bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
                 }
-
+                command = update.message().text();
                 autochat.setCommand(command);
                  if(!autochat.commandNotFound()) {
                     System.out.println();
