@@ -31,7 +31,7 @@ public class TelegramManageBotApplication {
         //controle de off-set, isto é, a partir deste ID será lido as mensagens pendentes na fila
         int m = 0;
 
-        String command="";
+        String command = "";
         String mensagem;
         LocationCommandController locationController = new LocationCommandController();
         CategoryCommandController categoryController = new CategoryCommandController();
@@ -52,7 +52,6 @@ public class TelegramManageBotApplication {
 
                 //atualização do off-set
                 m = update.updateId() + 1;
-                command = update.message().text();
                 mensagem = update.message().text();
 
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
