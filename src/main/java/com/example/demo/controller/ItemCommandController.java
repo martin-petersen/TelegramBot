@@ -232,7 +232,7 @@ public class ItemCommandController {
         if(con.getResponseCode()==200) {
             return "Cadastro de item feito com sucesso";
         } else {
-            return "Ops! Houve um erro no cadastro do item, verifique se o Local ou Categoria já estão cadastrados no sistema";
+            return "Ops! Houve um erro no cadastro do item, verifique se o Tombo já existe, ou se Local ou Categoria já estão cadastrados no sistema";
         }
     }
     //REQUISIÇÃO PUT

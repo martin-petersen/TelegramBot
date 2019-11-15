@@ -52,6 +52,7 @@ public class TelegramManageBotApplication {
 
                 //atualização do off-set
                 m = update.updateId() + 1;
+                command = update.message().text();
                 mensagem = update.message().text();
 
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
@@ -518,7 +519,7 @@ public class TelegramManageBotApplication {
                     bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
                 }
-                command = update.message().text();
+
                 autochat.setCommand(command);
                  if(!autochat.commandNotFound()) {
                     System.out.println();
