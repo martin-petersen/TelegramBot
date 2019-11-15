@@ -246,7 +246,6 @@ public class ItemCommandController {
     public String PutItem(Item item) throws IOException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String jsonInputString = ow.writeValueAsString(item);
-        System.out.println(jsonInputString);
 
         URL url = new URL("http://manage-bot-ufrn.herokuapp.com/items");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

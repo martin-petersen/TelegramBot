@@ -31,8 +31,8 @@ public class TelegramManageBotApplication {
         //controle de off-set, isto é, a partir deste ID será lido as mensagens pendentes na fila
         int m = 0;
 
-        String command = "";
-        String mensagem = "";
+        String command="";
+        String mensagem;
         LocationCommandController locationController = new LocationCommandController();
         CategoryCommandController categoryController = new CategoryCommandController();
         ItemCommandController itemCommandController = new ItemCommandController();
@@ -53,7 +53,6 @@ public class TelegramManageBotApplication {
                 //atualização do off-set
                 m = update.updateId() + 1;
                 mensagem = update.message().text();
-                autochat.setCommand(update.message().text());
 
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
@@ -289,6 +288,10 @@ public class TelegramManageBotApplication {
 
                 else if(command.equals("/itemput")&&!command.equals(mensagem)) {
                     String[] itemAtributes = mensagem.split(",");
+                    if(itemAtributes.length != 6) {
+                        bot.execute(new SendMessage(update.message().chat().id(), "Não foi possível realizar a operação"));
+                        continue;
+                    }
                     Location local = new Location();
                     local.setLocation(itemAtributes[1]);
                     Category categoria = new Category();
@@ -516,7 +519,9 @@ public class TelegramManageBotApplication {
                     command = "";
                 }
 
-                else if(!autochat.commandNotFound()) {
+                autochat.setCommand(command);
+                 if(!autochat.commandNotFound()) {
+                    System.out.println();
                     bot.execute(new SendMessage(update.message().chat().id(), "Ops! Sua mensagem não corresponde a nenhum dos comandos" + "\n" + "Aguardo um comando para agir..."));
                 }
             }
