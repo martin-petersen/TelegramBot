@@ -30,6 +30,8 @@ public class TelegramManageBotApplication {
 
         //controle de off-set, isto é, a partir deste ID será lido as mensagens pendentes na fila
         int m = 0;
+        boolean v1;
+        boolean v2;
 
         String command = "";
         String mensagem;
@@ -520,8 +522,7 @@ public class TelegramManageBotApplication {
                 }
 
                 autochat.setCommand(command);
-                 if(!autochat.commandNotFound()) {
-                    System.out.println();
+                if(!autochat.commandNotFound()) {
                     bot.execute(new SendMessage(update.message().chat().id(), "Ops! Sua mensagem não corresponde a nenhum dos comandos" + "\n" + "Aguardo um comando para agir..."));
                 }
             }
