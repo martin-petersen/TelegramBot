@@ -57,6 +57,12 @@ public class TelegramManageBotApplication {
 
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
+                if(update.message().voice() != null) {
+                    bot.execute(new SendAudio(update.message().chat().id(),"CQADAQADsQADX8hxRiywc8rRo0w6FgQ"));
+                    update.poll();
+                    continue;
+                }
+
                 if(update.message().photo() != null) {
                     bot.execute(new SendPhoto(update.message().chat().id(),new File("texto-motherfucker.png")));
                     update.poll();
