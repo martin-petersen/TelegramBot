@@ -30,8 +30,7 @@ public class TelegramManageBotApplication {
 
         //controle de off-set, isto é, a partir deste ID será lido as mensagens pendentes na fila
         int m = 0;
-        boolean v1;
-        boolean v2;
+        boolean validate = true;
 
         String command = "";
         String mensagem;
@@ -55,7 +54,10 @@ public class TelegramManageBotApplication {
                 //atualização do off-set
                 m = update.updateId() + 1;
                 mensagem = update.message().text();
-
+                autochat.setCommand(update.message().text());
+                if(!autochat.commandNotFound()) {
+                    validate = false;
+                }
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
                 if(update.message().voice() != null) {
@@ -157,6 +159,7 @@ public class TelegramManageBotApplication {
                         bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
                     }
                     command = "";
+                    validate = true;
                 }
 
                 //######################################################################################################
@@ -176,6 +179,7 @@ public class TelegramManageBotApplication {
                         bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
                     }
                     command = "";
+                    validate = true;
                 }
 
                 //######################################################################################################
@@ -197,6 +201,7 @@ public class TelegramManageBotApplication {
                         }
                     }
                     command = "";
+                    validate = true;
                 }
                 //######################################################################################################
 
@@ -217,6 +222,7 @@ public class TelegramManageBotApplication {
                         }
                     }
                     command = "";
+                    validate = true;
                 }
                 //######################################################################################################
 
@@ -237,6 +243,7 @@ public class TelegramManageBotApplication {
                         }
                     }
                     command = "";
+                    validate = true;
                 }
                 //######################################################################################################
 
@@ -257,6 +264,7 @@ public class TelegramManageBotApplication {
                         }
                     }
                     command = "";
+                    validate = true;
                 }
                 //######################################################################################################
 
@@ -280,6 +288,7 @@ public class TelegramManageBotApplication {
                     bot.execute(new SendMessage(update.message().chat().id(), response));
 
                     command = "";
+                    validate = true;
                 }
                 //Método para atualizar um item
                 if(update.message().text().equals("/itemput")) {
@@ -305,6 +314,7 @@ public class TelegramManageBotApplication {
                     bot.execute(new SendMessage(update.message().chat().id(), response));
 
                     command = "";
+                    validate = true;
                 }
                 //######################################################################################################
 
@@ -346,6 +356,7 @@ public class TelegramManageBotApplication {
                         bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
                     }
                     command = "";
+                    validate = true;
                 }
 
 
@@ -365,6 +376,7 @@ public class TelegramManageBotApplication {
                     }
 
                     command = "";
+                    validate = true;
                 }
 
 
@@ -386,6 +398,7 @@ public class TelegramManageBotApplication {
                         }
                     }
                     command = "";
+                    validate = true;
                 }
 
                 //######################################################################################################
@@ -401,6 +414,7 @@ public class TelegramManageBotApplication {
                     String response = locationController.PostLocation(local);
                     bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
+                    validate = true;
                 }
 
                 //######################################################################################################
@@ -413,6 +427,7 @@ public class TelegramManageBotApplication {
                     String response = locationController.DeleteLocal(mensagem);
                     bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
+                    validate = true;
                 }
 
                 //TODO REQUESTS RELACIONADOS A CATEGORIAS
@@ -445,6 +460,7 @@ public class TelegramManageBotApplication {
                         bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
                     }
                     command = "";
+                    validate = true;
                 }
                 //######################################################################################################
 
@@ -462,6 +478,7 @@ public class TelegramManageBotApplication {
                     }
 
                     command = "";
+                    validate = true;
                 }
 
                 //######################################################################################################
@@ -481,6 +498,7 @@ public class TelegramManageBotApplication {
                         }
                     }
                     command = "";
+                    validate = true;
                 }
 
                 //######################################################################################################
@@ -496,6 +514,7 @@ public class TelegramManageBotApplication {
                     String response = categoryController.PostCategory(category);
                     bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
+                    validate = true;
                 }
 
                 //######################################################################################################
@@ -508,6 +527,7 @@ public class TelegramManageBotApplication {
                     String response = categoryController.DeleteCategoria(mensagem);
                     bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
+                    validate = true;
                 }
 
                 else if(update.message().text().equals("/itemdelete")) {
@@ -519,11 +539,12 @@ public class TelegramManageBotApplication {
                     String response = itemCommandController.DeleteItem(mensagem);
                     bot.execute(new SendMessage(update.message().chat().id(), response));
                     command = "";
+                    validate = true;
                 }
 
-                autochat.setCommand(command);
-                if(!autochat.commandNotFound()) {
+                if(!validate) {
                     bot.execute(new SendMessage(update.message().chat().id(), "Ops! Sua mensagem não corresponde a nenhum dos comandos" + "\n" + "Aguardo um comando para agir..."));
+                    validate = true;
                 }
             }
         }
