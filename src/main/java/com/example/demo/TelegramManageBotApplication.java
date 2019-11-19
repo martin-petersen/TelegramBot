@@ -99,7 +99,7 @@ public class TelegramManageBotApplication {
 
                 if(usuario.getComandos()[0].equals("/start")) {
                     bot.execute(new SendMessage(update.message().chat().id(), "Seja bem vindo ao Manage UFRN Bot " +
-                            usuario.getNome() +
+                            usuario.getNome() + "\n" +
                             "Para utilizar os seviços utilize comandos de texto\n"));
                     usuario.resetComandos();
                     Users.replace(update.message().chat().id(),usuario);
