@@ -23,7 +23,7 @@ public class TelegramManageBotApplication {
         SpringApplication.run(TelegramManageBotApplication.class, args);
 
         //Criação do objeto bot com as informações de acesso
-        TelegramBot bot = new TelegramBot("1004965720:AAG14C7ARHBeYuV1VHyNwZ1XJgwp9UDwGiE");
+        TelegramBot bot = new TelegramBot("867416719:AAFfmldEoMg7LZYJ4jnoimPNGW5H28cdbTI");
 
         //objeto responsável por receber as mensagens
         GetUpdatesResponse updatesResponse;
@@ -56,7 +56,7 @@ public class TelegramManageBotApplication {
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
                 if(update.message().voice() != null) {
-                    bot.execute(new SendAudio(update.message().chat().id(),"CQADAQADsQADX8hxRiywc8rRo0w6FgQ"));
+                    bot.execute(new SendAudio(update.message().chat().id(),"CQADAQADXwAD9EuhRhp-s8OxaXwAARYE"));
                     update.poll();
                     continue;
                 }
@@ -86,7 +86,8 @@ public class TelegramManageBotApplication {
                 }
 
                 if(update.message().audio() != null) {
-                    bot.execute(new SendAudio(update.message().chat().id(),"CQADAQADsQADX8hxRiywc8rRo0w6FgQ"));
+                    bot.execute(new SendAudio(update.message().chat().id(),"CQADAQADXwAD9EuhRhp-s8OxaXwAARYE"));
+                    System.out.println(update.message().audio().fileId());
                     update.poll();
                     continue;
                 }
