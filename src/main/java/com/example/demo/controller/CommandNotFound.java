@@ -27,20 +27,43 @@ public class CommandNotFound {
      */
     public boolean commandNotFound() {
         if(!getCommand().equals("/help") && !getCommand().equals("/items")
-        && !getCommand().equals("/locations") && !getCommand().equals("/category")
-        && !getCommand().equals("/itempost") && !getCommand().equals("/itemdelete")
-        && !getCommand().equals("/itemput") && !getCommand().equals("/localpost")
-        && !getCommand().equals("/localdelete") && !getCommand().equals("/categorypost")
-        && !getCommand().equals("/categorydelete") && !getCommand().equals("/byitemid")
-        && !getCommand().equals("/byitemname") && !getCommand().equals("/byitemcategory")
-        && !getCommand().equals("/byitemlocation") && !getCommand().equals("/byitemdescription")
-        && !getCommand().equals("/bylocalid") && !getCommand().equals("/bylocalname")
-        && !getCommand().equals("/bylocaldescrip") && !getCommand().equals("/bycategid")
-        && !getCommand().equals("/bycategname") && !getCommand().equals("/bycategdescrip")
-        && !getCommand().equals("/byitemtombo") && !getCommand().equals("/exportcsv")
-        && !getCommand().equals("/start")) {
+            && !getCommand().equals("/locations") && !getCommand().equals("/category")
+            && !getCommand().equals("/itempost") && !getCommand().equals("/itemdelete")
+            && !getCommand().equals("/itemput") && !getCommand().equals("/localpost")
+            && !getCommand().equals("/localdelete") && !getCommand().equals("/categorypost")
+            && !getCommand().equals("/categorydelete") && !getCommand().equals("/byitemid")
+            && !getCommand().equals("/byitemname") && !getCommand().equals("/byitemcategory")
+            && !getCommand().equals("/byitemlocation") && !getCommand().equals("/byitemdescription")
+            && !getCommand().equals("/bylocalid") && !getCommand().equals("/bylocalname")
+            && !getCommand().equals("/bylocaldescrip") && !getCommand().equals("/bycategid")
+            && !getCommand().equals("/bycategname") && !getCommand().equals("/bycategdescrip")
+            && !getCommand().equals("/byitemtombo") && !getCommand().equals("/exportcsv")
+            && !getCommand().equals("/start") && !getCommand().equals("idle")) {
             return false;
         }
         return true;
+    }
+
+    public boolean newCommand() {
+        if(getCommand() == null) {
+                return true;
+        }
+        else if(getCommand().equals("/help") || getCommand().equals("/items")
+                || getCommand().equals("/locations") || getCommand().equals("/category")
+                || getCommand().equals("/itempost") || getCommand().equals("/itemdelete")
+                || getCommand().equals("/itemput") || getCommand().equals("/localpost")
+                || getCommand().equals("/localdelete") || getCommand().equals("/categorypost")
+                || getCommand().equals("/categorydelete") || getCommand().equals("/byitemid")
+                || getCommand().equals("/byitemname") || getCommand().equals("/byitemcategory")
+                || getCommand().equals("/byitemlocation") || getCommand().equals("/byitemdescription")
+                || getCommand().equals("/bylocalid") || getCommand().equals("/bylocalname")
+                || getCommand().equals("/bylocaldescrip") || getCommand().equals("/bycategid")
+                || getCommand().equals("/bycategname") || getCommand().equals("/bycategdescrip")
+                || getCommand().equals("/byitemtombo") || getCommand().equals("/exportcsv")
+                || getCommand().equals("/start")){
+            return false;
+        } else {
+            return true;
+        }
     }
 }

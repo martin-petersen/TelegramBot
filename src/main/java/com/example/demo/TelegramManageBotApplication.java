@@ -31,11 +31,12 @@ public class TelegramManageBotApplication {
         //controle de off-set, isto é, a partir deste ID será lido as mensagens pendentes na fila
         int m = 0;
 
-        String command = "";
         String mensagem;
         LocationCommandController locationController = new LocationCommandController();
         CategoryCommandController categoryController = new CategoryCommandController();
         ItemCommandController itemCommandController = new ItemCommandController();
+        CommandNotFound command = new CommandNotFound();
+        Fomatter f = new Fomatter();
 
         //loop infinito pode ser alterado por algum timer de intervalo curto
         while (true) {
@@ -52,6 +53,10 @@ public class TelegramManageBotApplication {
                 //atualização do off-set
                 m = update.updateId() + 1;
                 mensagem = update.message().text();
+
+                if(command.newCommand()) {
+                    command.setCommand(update.message().text());
+                }
 
                 bot.execute(new SendChatAction(update.message().chat().id(), ChatAction.typing.name()));
 
@@ -92,432 +97,609 @@ public class TelegramManageBotApplication {
                     continue;
                 }
 
-                if(update.message().text().equals("/start")) {
-                    bot.execute(new SendMessage(update.message().chat().id(), "Olá " + update.message().chat().firstName()
-                            + "\n" + "Seja bem vindo ao Manage UFRN Bot.\n" +
-                            "Para utilizar os seviços utilize comandos de texto\n"));
-                }
+                if(command.commandNotFound()) {
+                    if(update.message().text().equals("/start")) {
+                        bot.execute(new SendMessage(update.message().chat().id(), "Olá " + update.message().chat().firstName()
+                                + "\n" + "Seja bem vindo ao Manage UFRN Bot.\n" +
+                                "Para utilizar os seviços utilize comandos de texto\n"));
+                        command.setCommand("idle");
+                    }
 
-                else if(update.message().text().equals("/help")) {
-                    bot.execute(new SendMessage(update.message().chat().id(), "/items - lista todos os itens\n" +
-                            "/locations - lista as localizações\n" +
-                            "/category - lista as categorias\n" +
-                            "/itempost - adiciona um item\n" +
-                            "/itemdelete - remove um item\n" +
-                            "/itemput - atualiza um item\n" +
-                            "/localpost - adiciona um local\n" +
-                            "/localdelete - remove um local\n" +
-                            "/categorypost - adiciona uma categoria\n" +
-                            "/categorydelete - remove uma categoria\n" +
-                            "/byitemid - encontra o item pelo id\n" +
-                            "/byitemname - busca pelo nome do item\n" +
-                            "/byitemtombo - busca pelo tombo do item\n" +
-                            "/byitemcategory - busca pela categoria\n" +
-                            "/byitemlocation - busca pelo localização\n" +
-                            "/byitemdescription - busca pela descrição\n" +
-                            "/bylocalid - busca pelo id do local\n" +
-                            "/bylocalname - busca pelo nome do local\n" +
-                            "/bylocaldescrip - busca pela descrição do local\n" +
-                            "/bycategid - busca pelo id da categoria\n" +
-                            "/bycategname - busca pelo nome da categoria\n" +
-                            "/bycategdescrip - busca pela descrição da categoria\n" +
-                            "/exportcsv - gerar CSV com itens, locais e categorias"));
-                }
+                    else if(update.message().text().equals("/help")) {
+                        bot.execute(new SendMessage(update.message().chat().id(), "/items - lista todos os itens\n" +
+                                "/locations - lista as localizações\n" +
+                                "/category - lista as categorias\n" +
+                                "/itempost - adiciona um item\n" +
+                                "/itemdelete - remove um item\n" +
+                                "/itemput - atualiza um item\n" +
+                                "/localpost - adiciona um local\n" +
+                                "/localdelete - remove um local\n" +
+                                "/categorypost - adiciona uma categoria\n" +
+                                "/categorydelete - remove uma categoria\n" +
+                                "/byitemid - encontra o item pelo id\n" +
+                                "/byitemname - busca pelo nome do item\n" +
+                                "/byitemtombo - busca pelo tombo do item\n" +
+                                "/byitemcategory - busca pela categoria\n" +
+                                "/byitemlocation - busca pelo localização\n" +
+                                "/byitemdescription - busca pela descrição\n" +
+                                "/bylocalid - busca pelo id do local\n" +
+                                "/bylocalname - busca pelo nome do local\n" +
+                                "/bylocaldescrip - busca pela descrição do local\n" +
+                                "/bycategid - busca pelo id da categoria\n" +
+                                "/bycategname - busca pelo nome da categoria\n" +
+                                "/bycategdescrip - busca pela descrição da categoria\n" +
+                                "/exportcsv - gerar CSV com itens, locais e categorias"));
+                        command.setCommand("idle");
+                    }
 
-                //TODO REQUESTS RELACIONADOS A ITENS
+                    //TODO REQUESTS RELACIONADOS A ITENS
 
-                //Método para listar tudo
-                else if (update.message().text().equals("/items")) {
-                    List<Item> itens = itemCommandController.listallItems();
-                    if(itens.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados"));
-                    } else {
-                        for (Item i:
-                                itens) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    //Método para listar tudo
+                    else if (update.message().text().equals("/items")) {
+                        List<Item> itens = itemCommandController.listallItems();
+                        if(itens.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados"));
+                        } else {
+                            for (Item i:
+                                    itens) {
+                                if(i.getLocation().getLocation().contains("-")) {
+                                    Location local = i.getLocation();
+                                    local.setLocation(f.formatterHifenEraser(local.getLocation()));
+                                    i.setLocation(local);
+                                }
+                                if(i.getCategory().getCategory().contains("-")) {
+                                    Category categoria = i.getCategory();
+                                    categoria.setCategory(f.formatterHifenEraser(categoria.getCategory()));
+                                    i.setCategory(categoria);
+                                }
+                                if(i.getItem().contains("-")) {
+                                    i.setItem(f.formatterHifenEraser(i.getItem()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
                         }
+                        command.setCommand("idle");
                     }
-                    command = "";
-                }
-                //######################################################################################################
+                    //######################################################################################################
 
-                //Método para buscar por ID
-                else if(update.message().text().equals("/byitemid")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite o ID:"));
-                    mensagem = command;
-                }
-
-                else if(command.equals("/byitemid")&&!command.equals(mensagem)) {
-                    Item item = itemCommandController.itemByID(mensagem);
-                    if(item == null) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Item não encontrado"));
-                    } else {
-                        bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
+                    //Método para buscar por ID
+                    else if(update.message().text().equals("/byitemid")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite o ID:"));
+                        mensagem = command.getCommand();
                     }
-                    command = "";
-                }
 
-                //######################################################################################################
-
-                //Método para buscar pelo tombo
-                else if(update.message().text().equals("/byitemtombo")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite o Tombo:"));
-                    mensagem = command;
-                }
-
-                else if(command.equals("/byitemtombo")&&!command.equals(mensagem)) {
-                    Item item = itemCommandController.itemByTombo(mensagem);
-                    if(item == null) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Item não encontrado"));
-                    } else {
-                        bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
-                    }
-                    command = "";
-                }
-
-                //######################################################################################################
-
-                //Método para buscar pelo nome do item
-                else if(update.message().text().equals("/byitemname")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite o nome do item:"));
-                    mensagem = command;
-                }
-                else if(command.equals("/byitemname")&&!command.equals(mensagem)) {
-                    List<Item> itens = itemCommandController.itemByName(mensagem);
-                    if(itens.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com esse nome"));
-                    } else {
-                        for (Item i:
-                                itens) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    else if(command.getCommand().equals("/byitemid")&&!command.equals(mensagem)) {
+                        Item item = itemCommandController.itemByID(mensagem);
+                        if(item == null) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Item não encontrado"));
+                        } else {
+                            bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
                         }
+                        command.setCommand("idle");
                     }
-                    command = "";
-                }
-                //######################################################################################################
 
-                //Método para buscar pela categoria do item
-                else if(update.message().text().equals("/byitemcategory")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite a categoria:"));
-                    mensagem = command;
-                }
-                else if(command.equals("/byitemcategory")&&!command.equals(mensagem)) {
-                    List<Item> itens = itemCommandController.itemByCategory(mensagem);
-                    if(itens.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa categoria"));
-                    } else {
-                        for (Item i:
-                                itens) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    //######################################################################################################
+
+                    //Método para buscar pelo tombo
+                    else if(update.message().text().equals("/byitemtombo")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite o Tombo:"));
+                        mensagem = command.getCommand();
+                    }
+
+                    else if(command.getCommand().equals("/byitemtombo")&&!command.equals(mensagem)) {
+                        Item item = itemCommandController.itemByTombo(mensagem);
+                        if(item == null) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Item não encontrado"));
+                        } else {
+                            bot.execute(new SendMessage(update.message().chat().id(), item.toString()));
                         }
+                        command.setCommand("idle");
                     }
-                    command = "";
-                }
-                //######################################################################################################
 
-                //Método para buscar pela localização
-                else if(update.message().text().equals("/byitemlocation")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite a localização:"));
-                    mensagem = command;
-                }
-                else if(command.equals("/byitemlocation")&&!command.equals(mensagem)) {
-                    List<Item> itens = itemCommandController.itemByLocation(mensagem);
-                    if(itens.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados para esse local"));
-                    } else {
-                        for (Item i:
-                                itens) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    //######################################################################################################
+
+                    //Método para buscar pelo nome do item
+                    else if(update.message().text().equals("/byitemname")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite o nome do item:"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/byitemname")&&!command.equals(mensagem)) {
+                        if(mensagem.contains(" ")) {
+                            mensagem = f.formatterSpaceEraser(mensagem);
                         }
-                    }
-                    command = "";
-                }
-                //######################################################################################################
-
-                //Método para busca pela descrição do item
-                else if(update.message().text().equals("/byitemdescription")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite a descrição:"));
-                    mensagem = command;
-                }
-                else if(command.equals("/byitemdescription")&&!command.equals(mensagem)) {
-                    List<Item> itens = itemCommandController.itemByDescription(mensagem);
-                    if(itens.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa descrição"));
-                    } else {
-                        for (Item i:
-                                itens) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        List<Item> itens = itemCommandController.itemByName(mensagem);
+                        if(itens.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com esse nome"));
+                        } else {
+                            for (Item i:
+                                    itens) {
+                                if(i.getLocation().getLocation().contains("-")) {
+                                    Location local = i.getLocation();
+                                    local.setLocation(f.formatterHifenEraser(local.getLocation()));
+                                    i.setLocation(local);
+                                }
+                                if(i.getCategory().getCategory().contains("-")) {
+                                    Category categoria = i.getCategory();
+                                    categoria.setCategory(f.formatterHifenEraser(categoria.getCategory()));
+                                    i.setCategory(categoria);
+                                }
+                                if(i.getItem().contains("-")) {
+                                    i.setItem(f.formatterHifenEraser(i.getItem()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
                         }
+                        command.setCommand("idle");
                     }
-                    command = "";
-                }
-                //######################################################################################################
+                    //######################################################################################################
 
-                //Método para adicionar um item
-
-                if(update.message().text().equals("/itempost")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Local,Categoria,Item,Tombo,Descrição"));
-                    mensagem = command;
-                }
-
-                if(command.equals("/itempost")&&!command.equals(mensagem)) {
-                    String[] itemAtributes = mensagem.split(",");
-                    Location local = new Location();
-                    local.setLocation(itemAtributes[0]);
-                    Category categoria = new Category();
-                    categoria.setCategory(itemAtributes[1]);
-                    Item item = new Item(local,categoria,itemAtributes[2],itemAtributes[4]);
-                    item.setTombo(Integer.parseInt(itemAtributes[3]));
-                    String response = itemCommandController.PostItem(item);
-                    bot.execute(new SendMessage(update.message().chat().id(), response));
-
-                    command = "";
-                }
-                //Método para atualizar um item
-                if(update.message().text().equals("/itemput")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "ID,Local,Categoria,Item,Tombo,Descrição"));
-                    mensagem = command;
-                }
-
-                else if(command.equals("/itemput")&&!command.equals(mensagem)) {
-                    String[] itemAtributes = mensagem.split(",");
-                    if(itemAtributes.length != 6) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não foi possível realizar a operação"));
-                        continue;
+                    //Método para buscar pela categoria do item
+                    else if(update.message().text().equals("/byitemcategory")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite a categoria:"));
+                        mensagem = command.getCommand();
                     }
-                    Location local = new Location();
-                    local.setLocation(itemAtributes[1]);
-                    Category categoria = new Category();
-                    categoria.setCategory(itemAtributes[2]);
-                    Item item = new Item(local,categoria,itemAtributes[3],itemAtributes[5]);
-                    item.setId(Integer.parseInt(itemAtributes[0]));
-                    item.setTombo(Integer.parseInt(itemAtributes[4]));
-                    String response = itemCommandController.PutItem(item);
-                    bot.execute(new SendMessage(update.message().chat().id(), response));
-
-                    command = "";
-                }
-                //######################################################################################################
-
-                //Método para gerar um csv
-                else if(update.message().text().equals("/exportcsv")) {
-                    itemCommandController.CSV(itemCommandController.listallItems());
-                    bot.execute(new SendDocument(update.message().chat().id(), new File("items.csv")));
-                }
-
-                //TODO REQUESTS RELACIONADOS A LOCALIZAÇÔES
-
-                //######################################################################################################
-                //Método para listar as localizações cadastradas
-                else if(update.message().text().equals("/locations")) {
-                    List<Location> locations = locationController.listallLocations();
-                    if(locations.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há locais cadastrados"));
-                    } else {
-                        for (Location i:
-                                locations) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    else if(command.getCommand().equals("/byitemcategory")&&!command.equals(mensagem)) {
+                        if(mensagem.contains(" ")) {
+                            mensagem = f.formatterSpaceEraser(mensagem);
                         }
-                    }
-                    command = "";
-                }
-
-
-                //######################################################################################################
-                else if(update.message().text().equals("/bylocalid")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do local:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/bylocalid")&&!command.equals(mensagem)) {
-                    Location local = locationController.localByID(update.message().text());
-                    if(local == null) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Local não encontrado"));
-                    } else {
-                        bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
-                    }
-                    command = "";
-                }
-
-
-
-                //######################################################################################################
-                else if(update.message().text().equals("/bylocalname")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome do local:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/bylocalname")&&!command.equals(mensagem)) {
-                    Location local = locationController.byLocationName(update.message().text());
-                    if(local == null) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Local não encontrado"));
-                    } else {
-                        bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
-                    }
-
-                    command = "";
-                }
-
-
-
-                //######################################################################################################
-                else if(update.message().text().equals("/bylocaldescrip")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira a descrição do local:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/bylocaldescrip")&&!command.equals(mensagem)) {
-                    List<Location> locations = locationController.byLocationDescription(mensagem);
-                    if(locations.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há locais cadastrados com essa descrição"));
-                    } else {
-                        for (Location i:
-                                locations) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        List<Item> itens = itemCommandController.itemByCategory(mensagem);
+                        if(itens.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa categoria"));
+                        } else {
+                            for (Item i:
+                                    itens) {
+                                if(i.getLocation().getLocation().contains("-")) {
+                                    Location local = i.getLocation();
+                                    local.setLocation(f.formatterHifenEraser(local.getLocation()));
+                                    i.setLocation(local);
+                                }
+                                if(i.getCategory().getCategory().contains("-")) {
+                                    Category categoria = i.getCategory();
+                                    categoria.setCategory(f.formatterHifenEraser(categoria.getCategory()));
+                                    i.setCategory(categoria);
+                                }
+                                if(i.getItem().contains("-")) {
+                                    i.setItem(f.formatterHifenEraser(i.getItem()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
                         }
+                        command.setCommand("idle");
                     }
-                    command = "";
-                }
+                    //######################################################################################################
 
-                //######################################################################################################
-                else if(update.message().text().equals("/localpost")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Local,Descrição"));
-                    mensagem = command;
-                }
-
-                else if(command.equals("/localpost")&&!command.equals(mensagem)) {
-                    String[] localAtributes = mensagem.split(",");
-                    Location local = new Location(localAtributes[0],localAtributes[1]);
-                    String response = locationController.PostLocation(local);
-                    bot.execute(new SendMessage(update.message().chat().id(), response));
-                    command = "";
-                }
-
-                //######################################################################################################
-                else if(update.message().text().equals("/localdelete")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do local:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/localdelete")&&!command.equals(mensagem)) {
-                    String response = locationController.DeleteLocal(mensagem);
-                    bot.execute(new SendMessage(update.message().chat().id(), response));
-                    command = "";
-                }
-
-                //TODO REQUESTS RELACIONADOS A CATEGORIAS
-
-                //######################################################################################################
-                //Método para listar as categorias cadastradas
-                else if(update.message().text().equals("/category")) {
-                    List<Category> categories = categoryController.listallCategories();
-                    if(categories.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há categorias cadastradas"));
-                    } else {
-                        for (Category i:
-                                categories) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                    //Método para buscar pela localização
+                    else if(update.message().text().equals("/byitemlocation")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite a localização:"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/byitemlocation")&&!command.equals(mensagem)) {
+                        if(mensagem.contains(" ")) {
+                            mensagem = f.formatterSpaceEraser(mensagem);
                         }
-                    }
-                }
-
-                //######################################################################################################
-                else if(update.message().text().equals("/bycategid")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID da categoria:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/bycategid")&&!command.equals(mensagem)) {
-                    Category categorias = categoryController.categoryByID(mensagem);
-                    if(categorias == null) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Categoria não encontrada"));
-                    } else {
-                        bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
-                    }
-                    command = "";
-                }
-                //######################################################################################################
-
-                else if(update.message().text().equals("/bycategname")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome da categoria:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/bycategname")&&!command.equals(mensagem)) {
-                    Category categorias = categoryController.byCategoryName(mensagem);
-                    if(categorias == null) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Categoria não encontrada"));
-                    } else {
-                        bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
-                    }
-
-                    command = "";
-                }
-
-                //######################################################################################################
-                else if(update.message().text().equals("/bycategdescrip")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome da categoria:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/bycategdescrip")&&!command.equals(mensagem)) {
-                    List<Category> categories = categoryController.byCategoryDescription(mensagem);
-                    if(categories.isEmpty()) {
-                        bot.execute(new SendMessage(update.message().chat().id(), "Não há categorias cadastradas"));
-                    } else {
-                        for (Category i:
-                                categories) {
-                            bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                        List<Item> itens = itemCommandController.itemByLocation(mensagem);
+                        if(itens.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados para esse local"));
+                        } else {
+                            for (Item i:
+                                    itens) {
+                                if(i.getLocation().getLocation().contains("-")) {
+                                    Location local = i.getLocation();
+                                    local.setLocation(f.formatterHifenEraser(local.getLocation()));
+                                    i.setLocation(local);
+                                }
+                                if(i.getCategory().getCategory().contains("-")) {
+                                    Category categoria = i.getCategory();
+                                    categoria.setCategory(f.formatterHifenEraser(categoria.getCategory()));
+                                    i.setCategory(categoria);
+                                }
+                                if(i.getItem().contains("-")) {
+                                    i.setItem(f.formatterHifenEraser(i.getItem()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
                         }
+                        command.setCommand("idle");
                     }
-                    command = "";
-                }
+                    //######################################################################################################
 
-                //######################################################################################################
-                else if(update.message().text().equals("/categorypost")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Categoria,Descrição"));
-                    mensagem = command;
-                }
+                    //Método para busca pela descrição do item
+                    else if(update.message().text().equals("/byitemdescription")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite a descrição:"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/byitemdescription")&&!command.equals(mensagem)) {
+                        if(mensagem.contains(" ")) {
+                            mensagem = f.formatterSpaceEraser(mensagem);
+                        }
+                        List<Item> itens = itemCommandController.itemByDescription(mensagem);
+                        if(itens.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há itens cadastrados com essa descrição"));
+                        } else {
+                            for (Item i:
+                                    itens) {
+                                if(i.getLocation().getLocation().contains("-")) {
+                                    Location local = i.getLocation();
+                                    local.setLocation(f.formatterHifenEraser(local.getLocation()));
+                                    i.setLocation(local);
+                                }
+                                if(i.getCategory().getCategory().contains("-")) {
+                                    Category categoria = i.getCategory();
+                                    categoria.setCategory(f.formatterHifenEraser(categoria.getCategory()));
+                                    i.setCategory(categoria);
+                                }
+                                if(i.getItem().contains("-")) {
+                                    i.setItem(f.formatterHifenEraser(i.getItem()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
+                        }
+                        command.setCommand("idle");
+                    }
+                    //######################################################################################################
 
-                else if(command.equals("/categorypost")&&!command.equals(mensagem)) {
-                    String[] categoryAtributes = mensagem.split(",");
-                    Category category = new Category(categoryAtributes[0],categoryAtributes[1]);
-                    String response = categoryController.PostCategory(category);
-                    bot.execute(new SendMessage(update.message().chat().id(), response));
-                    command = "";
-                }
+                    //Método para adicionar um item
 
-                //######################################################################################################
-                else if(update.message().text().equals("/categorydelete")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID da categoria:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/categorydelete")&&!command.equals(mensagem)) {
-                    String response = categoryController.DeleteCategoria(mensagem);
-                    bot.execute(new SendMessage(update.message().chat().id(), response));
-                    command = "";
-                }
+                    else if(update.message().text().equals("/itempost")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Local,Categoria,Item,Tombo,Descrição"));
+                        mensagem = command.getCommand();
+                    }
 
-                else if(update.message().text().equals("/itemdelete")) {
-                    command = update.message().text();
-                    bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do item:\n"));
-                    mensagem = command;
-                }
-                else if(command.equals("/itemdelete")&&!command.equals(mensagem)) {
-                    String response = itemCommandController.DeleteItem(mensagem);
-                    bot.execute(new SendMessage(update.message().chat().id(), response));
-                    command = "";
+                    else if(command.getCommand().equals("/itempost")&&!command.equals(mensagem)) {
+                        String[] itemAtributes = f.spliter(mensagem);
+                        if(itemAtributes.length < 5) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Dados insuficientes para o cadastro"));
+                            command.setCommand("idle");
+                            continue;
+                        }
+                        for (int i= 0; i < 5; ++i) {
+                            if(itemAtributes[i].contains(" ")) {
+                                itemAtributes[i] = f.formatterSpaceEraser(itemAtributes[i]);
+                            }
+                        }
+                        Location local = new Location();
+                        local.setLocation(itemAtributes[0]);
+                        Category categoria = new Category();
+                        categoria.setCategory(itemAtributes[1]);
+                        Item item = new Item(local,categoria,itemAtributes[2],itemAtributes[4]);
+                        item.setTombo(Integer.parseInt(itemAtributes[3]));
+                        String response = itemCommandController.PostItem(item);
+                        bot.execute(new SendMessage(update.message().chat().id(), response));
+
+                        command.setCommand("idle");
+                    }
+                    //Método para atualizar um item
+                    else if(update.message().text().equals("/itemput")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "ID,Local,Categoria,Item,Tombo,Descrição"));
+                        mensagem = command.getCommand();
+                    }
+
+                    else if(command.getCommand().equals("/itemput")&&!command.equals(mensagem)) {
+                        String[] itemAtributes = f.spliter(mensagem);
+                        if(itemAtributes.length != 6) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não foi possível realizar a operação"));
+                            command.setCommand("idle");
+                            continue;
+                        }
+                        for (int i= 0; i < 6; ++i) {
+                            if(itemAtributes[i].contains(" ")) {
+                                itemAtributes[i] = f.formatterSpaceEraser(itemAtributes[i]);
+                            }
+                        }
+                        Location local = new Location();
+                        local.setLocation(itemAtributes[1]);
+                        Category categoria = new Category();
+                        categoria.setCategory(itemAtributes[2]);
+                        Item item = new Item(local,categoria,itemAtributes[3],itemAtributes[5]);
+                        item.setId(Integer.parseInt(itemAtributes[0]));
+                        item.setTombo(Integer.parseInt(itemAtributes[4]));
+                        String response = itemCommandController.PutItem(item);
+                        bot.execute(new SendMessage(update.message().chat().id(), response));
+
+                        command.setCommand("idle");
+                    }
+                    //######################################################################################################
+
+                    //Método para gerar um csv
+                    else if(update.message().text().equals("/exportcsv")) {
+                        itemCommandController.CSV(itemCommandController.listallItems());
+                        bot.execute(new SendDocument(update.message().chat().id(), new File("items.csv")));
+                        command.setCommand("idle");
+                    }
+
+                    //TODO REQUESTS RELACIONADOS A LOCALIZAÇÔES
+
+                    //######################################################################################################
+                    //Método para listar as localizações cadastradas
+                    else if(update.message().text().equals("/locations")) {
+                        List<Location> locations = locationController.listallLocations();
+                        if(locations.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há locais cadastrados"));
+                        } else {
+                            for (Location i:
+                                    locations) {
+                                if(i.getLocation().contains("-")) {
+                                    i.setLocation(f.formatterHifenEraser(i.getLocation()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
+                        }
+                        command.setCommand("idle");
+                    }
+
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/bylocalid")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do local:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/bylocalid")&&!command.equals(mensagem)) {
+                        Location local = locationController.localByID(update.message().text());
+                        if(local == null) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Local não encontrado"));
+                        } else {
+                            bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
+                        }
+                        command.setCommand("idle");
+                    }
+
+
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/bylocalname")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome do local:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/bylocalname")&&!command.equals(mensagem)) {
+                        mensagem = f.formatterSpaceEraser(mensagem);
+                        Location local = locationController.byLocationName(mensagem);
+                        if(local == null) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Local não encontrado"));
+                        } else {
+                            if(local.getLocation().contains("-")) {
+                                local.setLocation(f.formatterHifenEraser(local.getLocation()));
+                            }
+                            if(local.getDescription().contains("-")) {
+                                local.setDescription(f.formatterHifenEraser(local.getDescription()));
+                            }
+                            bot.execute(new SendMessage(update.message().chat().id(), local.toString()));
+                        }
+
+                        command.setCommand("idle");
+                    }
+
+
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/bylocaldescrip")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira a descrição do local:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/bylocaldescrip")&&!command.equals(mensagem)) {
+                        mensagem = f.formatterSpaceEraser(mensagem);
+                        List<Location> locations = locationController.byLocationDescription(mensagem);
+                        if(locations.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há locais cadastrados com essa descrição"));
+                        } else {
+                            for (Location i:
+                                    locations) {
+                                if(i.getLocation().contains("-")) {
+                                    i.setLocation(f.formatterHifenEraser(i.getLocation()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
+                        }
+                        command.setCommand("idle");
+                    }
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/localpost")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Local,Descrição"));
+                        mensagem = command.getCommand();
+                    }
+
+                    else if(command.getCommand().equals("/localpost")&&!command.equals(mensagem)) {
+                        String[] localAtributes = f.spliter(mensagem);
+                        if(localAtributes.length < 2) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Dados insuficientes para o cadastro"));
+                            command.setCommand("idle");
+                            continue;
+                        }
+                        for (int i= 0; i < 2; ++i) {
+                            if(localAtributes[i].contains(" ")) {
+                                localAtributes[i] = f.formatterSpaceEraser(localAtributes[i]);
+                            }
+                        }
+                        Location local = new Location(localAtributes[0],localAtributes[1]);
+                        String response = locationController.PostLocation(local);
+                        bot.execute(new SendMessage(update.message().chat().id(), response));
+                        command.setCommand("idle");
+                    }
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/localdelete")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do local:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/localdelete")&&!command.equals(mensagem)) {
+                        String response = locationController.DeleteLocal(mensagem);
+                        bot.execute(new SendMessage(update.message().chat().id(), response));
+                        command.setCommand("idle");
+                    }
+
+                    //TODO REQUESTS RELACIONADOS A CATEGORIAS
+
+                    //######################################################################################################
+                    //Método para listar as categorias cadastradas
+                    else if(update.message().text().equals("/category")) {
+                        List<Category> categories = categoryController.listallCategories();
+                        if(categories.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há categorias cadastradas"));
+                        } else {
+                            for (Category i:
+                                    categories) {
+                                if(i.getCategory().contains("-")) {
+                                    i.setCategory(f.formatterHifenEraser(i.getCategory()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
+                        }
+                        command.setCommand("idle");
+                    }
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/bycategid")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID da categoria:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/bycategid")&&!command.equals(mensagem)) {
+                        Category categorias = categoryController.categoryByID(mensagem);
+                        if(categorias == null) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Categoria não encontrada"));
+                        } else {
+                            bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
+                        }
+                        command.setCommand("idle");
+                    }
+                    //######################################################################################################
+
+                    else if(update.message().text().equals("/bycategname")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome da categoria:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/bycategname")&&!command.equals(mensagem)) {
+                        Category categorias = categoryController.byCategoryName(mensagem);
+                        if(categorias == null) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Categoria não encontrada"));
+                        } else {
+                            if(categorias.getCategory().contains("-")) {
+                                categorias.setCategory(f.formatterHifenEraser(categorias.getCategory()));
+                            }
+                            if(categorias.getDescription().contains("-")) {
+                                categorias.setDescription(f.formatterHifenEraser(categorias.getDescription()));
+                            }
+                            bot.execute(new SendMessage(update.message().chat().id(), categorias.toString()));
+                        }
+
+                        command.setCommand("idle");
+                    }
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/bycategdescrip")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o nome da categoria:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/bycategdescrip")&&!command.equals(mensagem)) {
+                        List<Category> categories = categoryController.byCategoryDescription(mensagem);
+                        if(categories.isEmpty()) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Não há categorias cadastradas"));
+                        } else {
+                            for (Category i:
+                                    categories) {
+                                if(i.getCategory().contains("-")) {
+                                    i.setCategory(f.formatterHifenEraser(i.getCategory()));
+                                }
+                                if(i.getDescription().contains("-")) {
+                                    i.setDescription(f.formatterHifenEraser(i.getDescription()));
+                                }
+                                bot.execute(new SendMessage(update.message().chat().id(), i.toString()));
+                            }
+                        }
+                        command.setCommand("idle");
+                    }
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/categorypost")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Digite os atributos no seguinte formato:" + "\n" + "Categoria,Descrição"));
+                        mensagem = command.getCommand();
+                    }
+
+                    else if(command.getCommand().equals("/categorypost")&&!command.equals(mensagem)) {
+                        String[] categoryAtributes = f.spliter(mensagem);
+                        if(categoryAtributes.length < 2) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Dados insuficientes para o cadastro"));
+                            command.setCommand("idle");
+                            continue;
+                        }
+                        for (int i= 0; i < 2; ++i) {
+                            if(categoryAtributes[i].contains(" ")) {
+                                categoryAtributes[i] = f.formatterSpaceEraser(categoryAtributes[i]);
+                            }
+                        }
+                        Category category = new Category(categoryAtributes[0],categoryAtributes[1]);
+                        String response = categoryController.PostCategory(category);
+                        bot.execute(new SendMessage(update.message().chat().id(), response));
+                        command.setCommand("idle");
+                    }
+
+                    //######################################################################################################
+                    else if(update.message().text().equals("/categorydelete")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID da categoria:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/categorydelete")&&!command.equals(mensagem)) {
+                        String response = categoryController.DeleteCategoria(mensagem);
+                        bot.execute(new SendMessage(update.message().chat().id(), response));
+                        command.setCommand("idle");
+                    }
+
+                    else if(update.message().text().equals("/itemdelete")) {
+                        command.setCommand(update.message().text());
+                        bot.execute(new SendMessage(update.message().chat().id(), "Insira o ID do item:\n"));
+                        mensagem = command.getCommand();
+                    }
+                    else if(command.getCommand().equals("/itemdelete")&&!command.equals(mensagem)) {
+                        String response = itemCommandController.DeleteItem(mensagem);
+                        bot.execute(new SendMessage(update.message().chat().id(), response));
+                        command.setCommand("idle");
+                    }
+                } else {
+                    bot.execute(new SendMessage(update.message().chat().id(), "Faaaaaala meu consagrado,\n" +
+                            "não entendi o que tu disse, tenta outra vez\n" +
+                            "se tiver alguma dúvida digita um /help aí\n" +
+                            "FLW VLW!\""));
                 }
             }
         }

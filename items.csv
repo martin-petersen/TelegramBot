@@ -1,4 +1,8 @@
+ID_ITEM,TOMBO,ITEM,ID_LOCAL,LOCAL,DESCRIÇÃO_LOCAL,ID_CATEGORIA,CATEGORIA,DESCRIÇÃO_CATEGORIA,DESCRIÇÃO_ITEM
 2,2,Computador,1,A304,Sala,1,Eletronico,Aparelhos,Notebook
 4,10,Xbox,1,A304,Sala,1,Eletronico,Aparelhos,Videogame
 5,11,Xbox,1,A304,Sala,1,Eletronico,Aparelhos,Videogame
-6,12,Xbox,1,A304,Sala,1,Eletronico,Aparelhos,Videogame
+6,122,Xbox,1,A304,Sala,1,Eletronico,Aparelhos,Videogame
+9,113,Computador,1,A304,Sala,1,Eletronico,Aparelhos,PC
+10,8,PDF,1,A304,Sala,1,Eletronico,Aparelhos,descrição
+12,1212121,revista online,13,lolo lolo,uhuuuuuuuu ieieieieie,1,Eletronico,Aparelhos,leitura leitura leitura

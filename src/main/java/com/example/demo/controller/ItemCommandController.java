@@ -286,8 +286,37 @@ public class ItemCommandController {
 
     public void CSV(List<Item> li) throws IOException {
         StringBuilder CSV = new StringBuilder();
+        Fomatter f = new Fomatter();
+        String linha1 = "ID_ITEM,TOMBO,ITEM,ID_LOCAL,LOCAL,DESCRIÇÃO_LOCAL,ID_CATEGORIA,CATEGORIA,DESCRIÇÃO_CATEGORIA,DESCRIÇÃO_ITEM\n";
+        CSV.append(linha1);
         for (Item i:
                 li) {
+            if(i.getLocation().getLocation().contains("-")) {
+                Location local = i.getLocation();
+                local.setLocation(f.formatterHifenEraser(local.getLocation()));
+                i.setLocation(local);
+            }
+            if(i.getLocation().getDescription().contains("-")) {
+                Location local = i.getLocation();
+                local.setDescription(f.formatterHifenEraser(local.getDescription()));
+                i.setLocation(local);
+            }
+            if(i.getCategory().getCategory().contains("-")) {
+                Category categoria = i.getCategory();
+                categoria.setCategory(f.formatterHifenEraser(categoria.getCategory()));
+                i.setCategory(categoria);
+            }
+            if(i.getCategory().getCategory().contains("-")) {
+                Category categoria = i.getCategory();
+                categoria.setDescription(f.formatterHifenEraser(categoria.getDescription()));
+                i.setCategory(categoria);
+            }
+            if(i.getItem().contains("-")) {
+                i.setItem(f.formatterHifenEraser(i.getItem()));
+            }
+            if(i.getDescription().contains("-")) {
+                i.setDescription(f.formatterHifenEraser(i.getDescription()));
+            }
             CSV.append(i.toCSV());
         }
         File file = new File("items.csv");
