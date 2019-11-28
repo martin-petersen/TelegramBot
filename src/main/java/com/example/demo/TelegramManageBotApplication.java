@@ -384,7 +384,13 @@ public class TelegramManageBotApplication {
                         Category categoria = new Category();
                         categoria.setCategory(itemAtributes[1]);
                         Item item = new Item(local,categoria,itemAtributes[2],itemAtributes[4]);
-                        item.setTombo(Integer.parseInt(itemAtributes[3]));
+                        try{
+                            item.setTombo(Integer.parseInt(itemAtributes[3]));
+                        }catch (NumberFormatException e) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Algo inesperado aconteceu,\n" +
+                                    "Revise os dados e tente novamente"));
+                            continue;
+                        }
                         String response = itemCommandController.PostItem(item);
                         bot.execute(new SendMessage(update.message().chat().id(), response));
 
@@ -414,8 +420,14 @@ public class TelegramManageBotApplication {
                         Category categoria = new Category();
                         categoria.setCategory(itemAtributes[2]);
                         Item item = new Item(local,categoria,itemAtributes[3],itemAtributes[5]);
-                        item.setId(Integer.parseInt(itemAtributes[0]));
-                        item.setTombo(Integer.parseInt(itemAtributes[4]));
+                        try{
+                            item.setId(Integer.parseInt(itemAtributes[0]));
+                            item.setTombo(Integer.parseInt(itemAtributes[4]));
+                        }catch (NumberFormatException e) {
+                            bot.execute(new SendMessage(update.message().chat().id(), "Algo inesperado aconteceu,\n" +
+                                    "Revise os dados e tente novamente"));
+                            continue;
+                        }
                         String response = itemCommandController.PutItem(item);
                         bot.execute(new SendMessage(update.message().chat().id(), response));
 
